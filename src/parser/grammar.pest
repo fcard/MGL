@@ -1,0 +1,202 @@
+top = {SOI ~ filler ~ (top_expression ~ filler)* ~ EOI}
+
+top_expression = _{
+  object_declaration   |
+  wrapper_declaration  |
+  function_declaration
+}
+
+object_declaration = {
+  "object" ~ F ~ name ~ F ~ object_declaration_body
+}
+
+wrapper_declaration = {
+  "wrapper" ~ F ~ name ~ F ~ object_declaration_body
+}
+
+object_declaration_body = {
+  "{" ~ F ~
+     (F ~ (key_value | function_declaration) ~ newline ~ F)* ~ "}"
+}
+
+function_declaration = {
+  "function" ~ F ~ name ~ F ~
+  function_arguments_declaration ~ F ~ body
+}
+
+function_arguments_declaration = {
+  "(" ~ ((name ~ ",")* ~ name)? ~ ")"
+}
+
+body = {
+  "{" ~ F ~ (F ~ statement ~ newline ~ F)* ~ "}"
+}
+
+key_value = {
+  variable_name ~ ":" ~ expression
+}
+
+statement = _{
+  var |
+  body |
+  return_statement |
+  if_statement |
+  for_statement |
+  while_statement |
+  assignment |
+  statement_call
+}
+
+statement_call = {
+   expr_call
+}
+
+return_statement = {
+  "return" ~ expr
+}
+
+if_statement = {
+  "if" ~ F ~ expression ~ F ~ body ~ ("else" ~ F ~ (body | if_statement))*
+}
+
+while_statement = {
+  "while" ~ expression ~ body
+}
+
+for_statement = {
+  "for" ~ F ~ name ~ F ~ "in" ~ for_range ~ F ~ body
+}
+
+for_range = {
+  expression ~ (F ~ ".." ~ F ~ expression ~ (F ~ "by" ~ F ~ expression)?)?
+}
+
+var = {
+  "var" ~ F ~ ((var_assignment | name) ~ F ~ "," ~ F)* ~ (var_assignment | name)
+}
+
+var_assignment = {
+  name ~ F ~ "=" ~ F ~ right_hand_side
+}
+
+assignment = {
+  left_hand_side ~ F ~ "=" ~ F ~ right_hand_side
+}
+
+left_hand_side = {
+  expr
+}
+
+right_hand_side = {
+  expr
+}
+
+expression = {
+  expr
+}
+
+expr = _{
+  atomic_expression ~ expression_tail |
+  parentheses ~ expression_tail |
+  unary_op ~ expression_tail
+}
+
+expr_call = _{
+  atomic_expression ~ call_tail |
+  parentheses ~ call_tail |
+  unary_op ~ call_tail
+}
+
+
+parentheses = {
+  "(" ~ expr ~ ")"
+}
+
+unary_op = {
+  uop ~ expression
+}
+
+uop = {
+  "-" | "!"
+}
+
+atomic_expression = _{
+  boolean       |
+  string_top    |
+  variable_name |
+  number
+}
+
+
+expression_tail = _{
+  call ~ expression_tail |
+  indexing ~ expression_tail |
+  binary_op |
+  ternary_op |
+  ""
+}
+
+call = {
+  "(" ~ F ~ ((expression ~ F ~ "," ~ F)* ~ expression)? ~ F ~ ")"
+}
+
+indexing = {
+  "[" ~ F ~ accessor ~ F ~ (expression ~ F ~ "," ~ F)? ~ expression ~ F ~ "]"
+}
+
+accessor = {
+  ("|" | "?" | "#" | "@")?
+}
+
+
+binary_op = {
+  op ~ F ~ expression ~ expression_tail
+}
+
+op = {
+  "." | "+" | "-"  | "*"  | "/"  | "||" | "&&" |
+  "<" | ">" | ">=" | "<=" | "==" | "!="
+}
+
+ternary_op = {
+  "?" ~ F ~ expression ~ F ~ ":" ~ F ~ expression ~ expression_tail
+}
+
+call_tail = _{
+  call ~ call_tail |
+  indexing ~ call_tail |
+  binary_op_call |
+  ternary_op_call |
+  call
+}
+
+binary_op_call = {
+  op ~ F ~ expression ~ call_tail
+}
+
+ternary_op_call = {
+  "?" ~ F ~ expression ~ F ~ ":" ~ F ~ expression ~ call_tail
+}
+
+
+variable_name = {
+  name ~ indexing?
+}
+
+alpha = { 'a' .. 'z' | 'A' .. 'Z' | "_" }
+digit = { '0' .. '9' }
+name = @{ alpha ~ (alpha | digit)* }
+
+number = @{ digit+ ~ ("." ~ digit+)? }
+
+boolean = { "true" | "false" }
+
+string_top = _{"\"" ~ string ~ "\""}
+string = {(!"\"" ~ ANY)*}
+
+F = _{ filler }
+filler = _{ (" " | "\t" | "\n")* }
+newline = _{ NEWLINE }
+WHITESPACE = _{ " " | "\t" }
+COMMENT = _{ ("//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE) | ("/*" ~ (!"*/" ~ ANY)* ~ "*/") }
+
