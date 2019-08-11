@@ -140,6 +140,16 @@ impl Expression {
   }
 }
 
+macro implement_into_operator_for_str {
+  ($T: ty) => {
+    impl Into<$T> for &str {
+      fn into(self) -> $T {
+        Operator::from_str(self)
+      }
+    }
+  }
+}
+
 impl Operator for UnaryOp {
   fn from_str(s: &str) -> Self {
     use UnaryOp::*;
@@ -161,11 +171,7 @@ impl Operator for UnaryOp {
   }
 }
 
-impl Into<UnaryOp> for &str {
-  fn into(self) -> UnaryOp {
-    UnaryOp::from_str(self)
-  }
-}
+implement_into_operator_for_str!(UnaryOp);
 
 impl Operator for BinaryOp {
   fn from_str(s: &str) -> Self {
@@ -211,12 +217,8 @@ impl Operator for BinaryOp {
 }
 
 
+implement_into_operator_for_str!(BinaryOp);
 
-impl Into<BinaryOp> for &str {
-  fn into(self) -> BinaryOp {
-    BinaryOp::from_str(self)
-  }
-}
 
 impl Statement {
   pub fn return_op(e: Expression) -> Statement {
