@@ -1,5 +1,8 @@
 use pest::Parser;
-use pest::iterators::{Pair, Pairs};
+use pest::iterators;
+
+type Pair<'a>  = iterators::Pair<'a, Rule>;
+type Pairs<'a> = iterators::Pairs<'a, Rule>;
 
 use crate::parser::ast::*;
 use crate::parser::precedence::*;
@@ -21,7 +24,7 @@ pub fn parse_code(code: &str) -> Top  {
   Top::new(&declarations)
 }
 
-pub fn parse_declaration<'a>(pair: Pair<'a, Rule>) -> Option<Declaration> {
+pub fn parse_declaration(pair: Pair) -> Option<Declaration> {
   match pair.as_rule() {
     Rule::function_declaration => {
       Some(parse_function(pair))
@@ -39,7 +42,7 @@ pub fn parse_declaration<'a>(pair: Pair<'a, Rule>) -> Option<Declaration> {
   }
 }
 
-pub fn parse_function<'a>(pair: Pair<'a, Rule>) -> Declaration {
+pub fn parse_function(pair: Pair) -> Declaration {
   let mut parts = pair.into_inner();
   let name = parts.next().unwrap().as_str();
   let args = parts.next().unwrap().into_inner().map(|p| p.as_str()).collect::<Vec<_>>();
@@ -48,7 +51,7 @@ pub fn parse_function<'a>(pair: Pair<'a, Rule>) -> Declaration {
   Declaration::function(name, &args, parse_body(body))
 }
 
-pub fn parse_statement<'a>(pair: Pair<'a, Rule>) -> Statement {
+pub fn parse_statement(pair: Pair) -> Statement {
   match pair.as_rule() {
     Rule::return_statement => {
       Statement::return_op(parse_expression(pair))
@@ -60,6 +63,10 @@ pub fn parse_statement<'a>(pair: Pair<'a, Rule>) -> Statement {
 
     Rule::body => {
       parse_body(pair)
+    }
+
+    Rule::with_statement => {
+      parse_with(pair)
     }
 
     Rule::if_statement => {
@@ -86,33 +93,40 @@ pub fn parse_statement<'a>(pair: Pair<'a, Rule>) -> Statement {
   }
 }
 
-pub fn parse_if<'a>(if_pair: Pair<'a, Rule>) -> Statement {
+pub fn parse_with(if_pair: Pair) -> Statement {
+  let mut parts = if_pair.into_inner();
+  let expr = parse_expression(parts.next().unwrap());
+  let body = parse_body(parts.next().unwrap());
+  Statement::with(expr, body)
+}
+
+pub fn parse_if(if_pair: Pair) -> Statement {
   let mut parts = if_pair.into_inner();
   let cond = parse_expression(parts.next().unwrap());
   let body = parse_body(parts.next().unwrap());
   let or_else = parts.next().map(parse_body);
-
   Statement::if_op(cond, body, or_else)
 }
 
-pub fn parse_while<'a>(while_pair: Pair<'a, Rule>) -> Statement {
+
+pub fn parse_while(while_pair: Pair) -> Statement {
   let mut parts = while_pair.into_inner();
   let cond = parse_expression(parts.next().unwrap());
   let body = parse_body(parts.next().unwrap());
-
   Statement::while_op(cond, body)
 }
 
-pub fn parse_for<'a>(for_pair: Pair<'a, Rule>) -> Statement {
+
+pub fn parse_for(for_pair: Pair) -> Statement {
   let mut parts = for_pair.into_inner();
   let name  = parts.next().unwrap().as_str();
   let range = parse_for_range(parts.next().unwrap());
   let body  = parse_body(parts.next().unwrap());
-
   Statement::for_op(name, range, body)
 }
 
-pub fn parse_for_range<'a>(pair: Pair<'a, Rule>) -> ForRange {
+
+pub fn parse_for_range(pair: Pair) -> ForRange {
   let mut parts = pair.into_inner();
   let start = parse_expression(parts.next().unwrap());
 
@@ -125,23 +139,24 @@ pub fn parse_for_range<'a>(pair: Pair<'a, Rule>) -> ForRange {
   }
 }
 
-pub fn parse_assignment<'a>(pair: Pair<'a, Rule>) -> Statement {
+
+pub fn parse_assignment(pair: Pair) -> Statement {
   let mut parts = pair.into_inner();
   let left  = parse_expression(parts.next().unwrap());
   let right = parse_expression(parts.next().unwrap());
-
   Statement::assignment(left, right)
 }
 
-pub fn parse_var_assignment<'a>(pair: Pair<'a, Rule>) -> VarDeclaration {
+
+pub fn parse_var_assignment(pair: Pair) -> VarDeclaration {
   let mut parts = pair.into_inner();
   let left  = parts.next().unwrap().as_str();
   let right = parse_expression(parts.next().unwrap());
-
   VarDeclaration::assignment(left, right)
 }
 
-pub fn parse_var<'a>(pair: Pair<'a, Rule>) -> Statement {
+
+pub fn parse_var(pair: Pair) -> Statement {
   let mut vars = Vec::new();
 
   for var in pair.into_inner() {
@@ -155,7 +170,8 @@ pub fn parse_var<'a>(pair: Pair<'a, Rule>) -> Statement {
   Statement::var(&vars)
 }
 
-pub fn parse_body<'a>(body_pair: Pair<'a, Rule>) -> Statement {
+
+pub fn parse_body(body_pair: Pair) -> Statement {
   let mut body_statements = Vec::new();
 
   for statement_pair in body_pair.into_inner() {
@@ -166,7 +182,7 @@ pub fn parse_body<'a>(body_pair: Pair<'a, Rule>) -> Statement {
 }
 
 
-pub fn parse_expression<'a>(top_pair: Pair<'a, Rule>) -> Expression {
+pub fn parse_expression(top_pair: Pair) -> Expression {
   let mut expression = None;
 
   for pair in top_pair.into_inner() {
@@ -221,7 +237,7 @@ pub fn parse_expression<'a>(top_pair: Pair<'a, Rule>) -> Expression {
   expression.unwrap()
 }
 
-fn top_to_pairs<'a>(code: &'a str) -> Pairs<'a, Rule> {
+fn top_to_pairs<'a>(code: &'a str) -> Pairs<'a> {
   match MglParser::parse(Rule::top, code) {
     Ok(top_pairs) => {
       for top_pair in top_pairs {

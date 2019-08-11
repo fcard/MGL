@@ -47,6 +47,7 @@ pub enum Statement {
   Return(Expression),
   Call(Expression),
   Body(Vec<Statement>),
+  With(Expression, Box<Statement>),
   If(Expression, Box<Statement>, Option<Box<Statement>>),
   While(Expression, Box<Statement>),
   For(String, ForRange, Box<Statement>),
@@ -203,6 +204,10 @@ impl Statement {
 
   pub fn body(b: &[Statement]) -> Statement {
     Statement::Body(Vec::from(b))
+  }
+
+  pub fn with(expr: Expression, body: Statement) -> Statement {
+    Statement::With(expr, box body)
   }
 
   pub fn if_op(cond: Expression, then: Statement, or_else: Option<Statement>) -> Statement {

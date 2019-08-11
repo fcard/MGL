@@ -32,7 +32,10 @@ fn main() {
            j = a - b + c
            k = a + b - c
            l = a - b - c
-           return x[1,1] + f(1)
+
+           with a {
+             return x[1,1] + f(1)
+           }
          }
        }"
     ));

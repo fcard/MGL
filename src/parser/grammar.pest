@@ -40,6 +40,7 @@ statement = _{
   var |
   body |
   return_statement |
+  with_statement |
   if_statement |
   for_statement |
   while_statement |
@@ -53,6 +54,10 @@ statement_call = {
 
 return_statement = {
   "return" ~ expr
+}
+
+with_statement = {
+  "with" ~ F ~ expression ~ F ~ body
 }
 
 if_statement = {
