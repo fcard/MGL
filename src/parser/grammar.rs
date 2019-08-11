@@ -196,6 +196,11 @@ pub fn parse_expression(top_pair: Pair) -> Expression {
         Rule::variable_name => parse_expression(pair),
         Rule::parentheses   => Expression::parentheses(parse_expression(pair)),
 
+        Rule::resource => {
+          let names: Vec<_> = pair.into_inner().map(|p| p.as_str()).collect();
+          Expression::resource(&names)
+        }
+
         Rule::unary_op => {
           let mut parts = pair.into_inner();
           let operator = parts.next().unwrap().as_str();

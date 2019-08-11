@@ -33,7 +33,7 @@ fn main() {
            k = a + b - c
            l = a - b - c
 
-           with a {
+           with sprite::hello {
              return x[1,1] + f(1)
            }
          }

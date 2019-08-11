@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 #[derive(Debug, Clone)]
 pub struct Top {
   declarations: Vec<Declaration>
@@ -19,6 +17,7 @@ pub enum Expression {
   Num(String),
   Bool(bool),
   Name(String),
+  Resource(ResourceName),
   Parentheses(Box<Expression>),
   UnaryOp(UnaryOp, Box<Expression>),
   BinaryOp(BinaryOp, Box<Expression>, Box<Expression>),
@@ -26,6 +25,13 @@ pub enum Expression {
   Call(Box<Expression>, Vec<Expression>),
   Indexing(Box<Expression>, String, Vec<Expression>),
 }
+
+#[derive(Debug, Clone)]
+pub enum ResourceName {
+  Name(String),
+  InModule(String, Box<ResourceName>)
+}
+
 
 pub trait Operator {
   fn priority(self) -> i64;
@@ -69,7 +75,14 @@ pub enum VarDeclaration {
 
 #[derive(Debug, Clone)]
 pub enum Declaration {
-  Function(String, Vec<String>, Box<Statement>),
+  Function(FunctionDeclaration),
+}
+
+#[derive(Debug, Clone)]
+pub struct FunctionDeclaration {
+  name: String,
+  args: Vec<String>,
+  body: Box<Statement>
 }
 
 
@@ -92,6 +105,18 @@ impl Expression {
 
   pub fn parentheses(e: Expression) -> Expression {
     Expression::Parentheses(box e)
+  }
+
+  pub fn resource(names: &[&str]) -> Expression {
+    let mut resource = None;
+
+    for name in names.iter().rev() {
+      resource = Some(match resource {
+        None      => ResourceName::Name(String::from(*name)),
+        Some(res) => ResourceName::InModule(String::from(*name), box res)
+      });
+    }
+    Expression::Resource(resource.unwrap())
   }
 
   pub fn unary_op<T: Into<UnaryOp>>(op: T, e: Expression) -> Expression {
@@ -222,10 +247,12 @@ impl Statement {
     Statement::For(String::from(name), range, box then)
   }
 
+  #[allow(dead_code)]
   pub fn for_array(name: &str, array: Expression, then: Statement) -> Statement {
     Statement::For(String::from(name), ForRange::Array(array), box then)
   }
 
+  #[allow(dead_code)]
   pub fn for_integer(name: &str, s: Expression, e: Expression, by: Option<Expression>,
                      then: Statement) -> Statement {
     Statement::For(String::from(name), ForRange::Integer(s, e, by), box then)
@@ -263,6 +290,12 @@ impl VarDeclaration {
 impl Declaration {
   pub fn function(name: &str, args: &[&str], body: Statement) -> Declaration {
     Declaration::Function(
-      String::from(name), args.iter().map(|x| String::from(*x)).collect(), box body)
+      FunctionDeclaration {
+        name: String::from(name),
+        args: args.iter().map(|x| String::from(*x)).collect(),
+        body: box body
+      }
+    )
   }
 }
+

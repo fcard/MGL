@@ -1,4 +1,6 @@
-use crate::resources::sprite::*;
+use crate::parser::ast::ResourceName;
+use crate::resources::sprite::Sprite;
+use crate::resources::script::Script;
 
 type Items<T> = Vec<Item<T>>;
 
@@ -14,13 +16,10 @@ pub struct Project {
 
 #[derive(Debug, Clone)]
 pub enum Item<F> {
-  File(String, F),
+  File(ResourceName, F),
   Group(String, Vec<Item<F>>)
 }
 
-
-#[derive(Debug, Clone)]
-struct Script;
 
 #[derive(Debug, Clone)]
 struct Object;

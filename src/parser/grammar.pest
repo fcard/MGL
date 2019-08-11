@@ -101,12 +101,14 @@ expression = {
 }
 
 expr = _{
+  resource ~ expression_tail |
   atomic_expression ~ expression_tail |
   parentheses ~ expression_tail |
   unary_op ~ expression_tail
 }
 
 expr_call = _{
+  resource ~ call_tail |
   atomic_expression ~ call_tail |
   parentheses ~ call_tail |
   unary_op ~ call_tail
@@ -123,6 +125,10 @@ unary_op = {
 
 uop = {
   "-" | "!"
+}
+
+resource = {
+  name ~ (F ~ "::" ~ F ~ name)+
 }
 
 atomic_expression = _{
