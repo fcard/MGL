@@ -90,27 +90,27 @@ impl Expression {
   }
 
   pub fn parentheses(e: Expression) -> Expression {
-    Expression::Parentheses(Box::new(e))
+    Expression::Parentheses(box e)
   }
 
   pub fn unary_op<T: Into<UnaryOp>>(op: T, e: Expression) -> Expression {
-    Expression::UnaryOp(op.into(), Box::new(e))
+    Expression::UnaryOp(op.into(), box e)
   }
 
   pub fn binary_op<T: Into<BinaryOp>>(op: T, a: Expression, b: Expression) -> Expression {
-    Expression::BinaryOp(op.into(), Box::new(a), Box::new(b))
+    Expression::BinaryOp(op.into(), box a, box b)
   }
 
   pub fn ternary_op(condition: Expression, a: Expression, b: Expression) -> Expression {
-    Expression::TernaryOp(Box::new(condition), Box::new(a), Box::new(b))
+    Expression::TernaryOp(box condition, box a, box b)
   }
 
   pub fn call(caller: Expression, args: &[Expression]) -> Expression {
-    Expression::Call(Box::new(caller), Vec::from(args))
+    Expression::Call(box caller, Vec::from(args))
   }
 
   pub fn indexing(value: Expression, op: &str, keys: &[Expression]) -> Expression {
-    Expression::Indexing(Box::new(value), String::from(op), Vec::from(keys))
+    Expression::Indexing(box value, String::from(op), Vec::from(keys))
   }
 }
 
@@ -206,24 +206,24 @@ impl Statement {
   }
 
   pub fn if_op(cond: Expression, then: Statement, or_else: Option<Statement>) -> Statement {
-    Statement::If(cond, Box::new(then), or_else.map(Box::new))
+    Statement::If(cond, box then, or_else.map(Box::new))
   }
 
   pub fn while_op(cond: Expression, then: Statement) -> Statement {
-    Statement::While(cond, Box::new(then))
+    Statement::While(cond, box then)
   }
 
   pub fn for_op(name: &str, range: ForRange, then: Statement) -> Statement {
-    Statement::For(String::from(name), range, Box::new(then))
+    Statement::For(String::from(name), range, box then)
   }
 
   pub fn for_array(name: &str, array: Expression, then: Statement) -> Statement {
-    Statement::For(String::from(name), ForRange::Array(array), Box::new(then))
+    Statement::For(String::from(name), ForRange::Array(array), box then)
   }
 
   pub fn for_integer(name: &str, s: Expression, e: Expression, by: Option<Expression>,
                      then: Statement) -> Statement {
-    Statement::For(String::from(name), ForRange::Integer(s, e, by), Box::new(then))
+    Statement::For(String::from(name), ForRange::Integer(s, e, by), box then)
   }
 
   pub fn assignment(left: Expression, right: Expression) -> Statement {
@@ -258,6 +258,6 @@ impl VarDeclaration {
 impl Declaration {
   pub fn function(name: &str, args: &[&str], body: Statement) -> Declaration {
     Declaration::Function(
-      String::from(name), args.iter().map(|x| String::from(*x)).collect(), Box::new(body))
+      String::from(name), args.iter().map(|x| String::from(*x)).collect(), box body)
   }
 }

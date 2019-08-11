@@ -1,4 +1,5 @@
 #![feature(box_patterns)]
+#![feature(box_syntax)]
 
 #[macro_use]
 extern crate pest_derive;
