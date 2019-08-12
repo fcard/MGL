@@ -1,5 +1,6 @@
 use pest::Parser;
 use pest::iterators;
+use pest_derive::Parser;
 
 pub type Pair<'a>  = iterators::Pair<'a, Rule>;
 pub type Pairs<'a> = iterators::Pairs<'a, Rule>;

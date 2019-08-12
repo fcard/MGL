@@ -2,9 +2,6 @@
 #![feature(box_syntax)]
 #![feature(decl_macro)]
 
-#[macro_use]
-extern crate pest_derive;
-
 mod parser;
 mod ast;
 
