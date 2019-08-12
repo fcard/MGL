@@ -1,4 +1,4 @@
-use crate::parser::ast::*;
+use crate::ast::*;
 
 #[derive(Debug, Clone)]
 pub struct Script {

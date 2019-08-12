@@ -1,4 +1,4 @@
-use crate::parser::ast::ResourceName;
+use crate::ast::ResourceName;
 use crate::resources::sprite::Sprite;
 use crate::resources::script::Script;
 

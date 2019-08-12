@@ -4,8 +4,8 @@ use pest::iterators;
 type Pair<'a>  = iterators::Pair<'a, Rule>;
 type Pairs<'a> = iterators::Pairs<'a, Rule>;
 
-use crate::parser::ast::*;
-use crate::parser::precedence::*;
+use crate::ast::*;
+use crate::ast::precedence::*;
 
 #[derive(Parser)]
 #[grammar = "parser/grammar.pest"]

@@ -6,8 +6,9 @@
 extern crate pest_derive;
 
 mod parser;
+mod ast;
 use parser::grammar::parse_code;
-use parser::ast::*;
+use ast::*;
 
 mod resources;
 
