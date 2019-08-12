@@ -8,7 +8,7 @@ use crate::ast::Top;
 use grammar::parse_to_pairs;
 use declarations::parse_declaration;
 
-pub fn parse_code(code: &str) -> Top  {
+pub fn parse_code(code: &str) -> Top {
   let top_expressions = parse_to_pairs(code);
   let mut declarations = Vec::new();
 
