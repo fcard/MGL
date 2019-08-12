@@ -3,7 +3,7 @@ pub trait Operator {
   fn from_str(s: &str) -> Self;
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum BinaryOp {
   Dot,
   Add,
@@ -20,13 +20,13 @@ pub enum BinaryOp {
   Diff
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum UnaryOp {
   Neg,
   Not
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Accessor {
   None,
   List,

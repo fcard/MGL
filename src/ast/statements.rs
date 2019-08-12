@@ -1,6 +1,6 @@
 use crate::ast::expressions::Expression;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
   Return(Expression),
   Call(Expression),
@@ -13,13 +13,13 @@ pub enum Statement {
   Var(Vec<VarDeclaration>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ForRange {
   Array(Expression),
   Integer(Expression, Expression, Option<Expression>)
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum VarDeclaration {
   Assignment(String, Expression),
   Name(String)

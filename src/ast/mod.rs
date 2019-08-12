@@ -11,7 +11,7 @@ pub use declarations::*;
 
 #[derive(Debug, Clone)]
 pub struct Top {
-  declarations: Vec<Declaration>
+  pub declarations: Vec<Declaration>
 }
 
 impl Top {

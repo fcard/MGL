@@ -5,11 +5,11 @@ pub mod declarations;
 
 use crate::ast::Top;
 
-use grammar::parse_to_pairs;
+use grammar::parse_top;
 use declarations::parse_declaration;
 
 pub fn parse_code(code: &str) -> Top {
-  let top_expressions = parse_to_pairs(code);
+  let top_expressions = parse_top(code);
   let mut declarations = Vec::new();
 
   for top_expression in top_expressions {

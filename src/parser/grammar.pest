@@ -40,6 +40,11 @@ key = {
   name ~ indexing?
 }
 
+// for the unit tests
+statement_non_silent = {
+  statement
+}
+
 statement = _{
   var |
   body |
@@ -169,8 +174,8 @@ binary_op = {
 }
 
 op = {
-  "." | "+" | "-"  | "*"  | "/"  | "||" | "&&" |
-  "<" | ">" | ">=" | "<=" | "==" | "!="
+  "."  | "+"  | "-" | "*" | "/"  | "||" | "&&" |
+  ">=" | "<=" | "<" | ">" | "==" | "!="
 }
 
 ternary_op = {

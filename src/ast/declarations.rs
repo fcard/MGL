@@ -2,13 +2,13 @@ use crate::ast::operators::Accessor;
 use crate::ast::expressions::Expression;
 use crate::ast::statements::Statement;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Declaration {
   Function(FunctionDeclaration),
   Object(ObjectDeclaration),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionDeclaration {
   name: String,
   args: Vec<String>,
@@ -16,7 +16,7 @@ pub struct FunctionDeclaration {
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ObjectDeclaration {
   name: String,
   key_value_pairs: Vec<KeyValue>,
@@ -24,13 +24,13 @@ pub struct ObjectDeclaration {
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct KeyValue {
   key: Key,
   value: Expression
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Key {
   Name(String),
   Indexing(String, Accessor, Vec<Expression>)

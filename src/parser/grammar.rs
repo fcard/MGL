@@ -6,21 +6,23 @@ pub type Pairs<'a> = iterators::Pairs<'a, Rule>;
 
 #[derive(Parser)]
 #[grammar = "parser/grammar.pest"]
-struct MglParser;
+pub struct MglParser;
 
-pub fn parse_to_pairs<'a>(code: &'a str) -> Pairs<'a> {
-  match MglParser::parse(Rule::top, code) {
-    Ok(top_pairs) => {
-      for top_pair in top_pairs {
-        match top_pair.as_rule() {
-          Rule::top => {
-            return top_pair.into_inner()
-          }
-          _ => ()
+pub fn parse_top<'a>(code: &'a str) -> Pairs<'a> {
+  parse_mgl(Rule::top, code).into_inner()
+}
+
+pub fn parse_mgl<'a>(rule: Rule, code: &'a str) -> Pair<'a> {
+  match MglParser::parse(rule, code) {
+    Ok(pairs) => {
+      for pair in pairs {
+        if pair.as_rule() == rule {
+          return pair;
         }
       }
-      panic!("top rule not found");
+      panic!("rule '{:?}' not found", rule)
     }
+
     Err(err) => panic!("{}", err)
   }
 }

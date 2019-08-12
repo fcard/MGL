@@ -7,6 +7,10 @@ extern crate pest_derive;
 
 mod parser;
 mod ast;
+
+#[cfg(test)]
+mod tests;
+
 use parser::parse_code;
 use ast::*;
 

@@ -1,6 +1,6 @@
 use crate::ast::operators::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
   Str(String),
   Num(String),
@@ -15,7 +15,7 @@ pub enum Expression {
   Indexing(Box<Expression>, Accessor, Vec<Expression>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ResourceName {
   Name(String),
   InModule(String, Box<ResourceName>)
@@ -72,7 +72,7 @@ impl Expression {
     Expression::Call(box caller, Vec::from(args))
   }
 
-  pub fn indexing(value: Expression, op: &str, keys: &[Expression]) -> Expression {
+  pub fn indexing<T: Into<Accessor>>(value: Expression, op: T, keys: &[Expression]) -> Expression {
     Expression::Indexing(box value, op.into(), Vec::from(keys))
   }
 }
