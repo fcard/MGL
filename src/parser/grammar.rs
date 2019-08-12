@@ -31,7 +31,7 @@ pub fn parse_declaration(pair: Pair) -> Option<Declaration> {
     }
 
     Rule::object_declaration => {
-      unimplemented!()
+      Some(parse_object(pair))
     }
 
     Rule::wrapper_declaration => {
@@ -49,6 +49,57 @@ pub fn parse_function(pair: Pair) -> Declaration {
   let body = parts.next().unwrap();
 
   Declaration::function(name, &args, parse_body(body))
+}
+
+pub fn parse_object(pair: Pair) -> Declaration {
+  let mut parts = pair.into_inner();
+  let name = parts.next().unwrap().as_str();
+  let mut methods = Vec::new();
+  let mut keyvals = Vec::new();
+
+  for item in parts {
+    match item.as_rule() {
+      Rule::function_declaration => {
+        if let Declaration::Function(function) = parse_function(item) {
+          methods.push(function)
+        } else {
+          unreachable!()
+        }
+      }
+
+      Rule::key_value => {
+        keyvals.push(parse_key_value(item));
+      }
+
+      _ => unreachable!()
+    }
+  }
+
+  Declaration::object(name, &keyvals, &methods)
+}
+
+pub fn parse_key_value(pair: Pair) -> KeyValue {
+  let mut parts = pair.into_inner();
+  let key   = parse_key(parts.next().unwrap());
+  let value = parse_expression(parts.next().unwrap());
+  KeyValue::new(key, value)
+}
+
+pub fn parse_key(pair: Pair) -> Key {
+  let mut parts = pair.into_inner();
+  let name = parts.next().unwrap().as_str();
+
+  match parts.next() {
+    None => Key::name(name),
+
+    Some(index) => {
+      let mut index_parts = index.into_inner();
+      let acc = index_parts.next().unwrap().as_str();
+      let args = index_parts.map(parse_expression).collect::<Vec<_>>();
+
+      Key::indexing(name, acc, &args)
+    }
+  }
 }
 
 pub fn parse_statement(pair: Pair) -> Statement {

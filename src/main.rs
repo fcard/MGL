@@ -38,7 +38,17 @@ fn main() {
              return x[1,1] + f(1)
            }
          }
-       }"
+       }
+
+       object hello {
+         a: 10
+         b[0]: 12
+
+         function g(x,y) {
+           return a + b[0]
+         }
+       }
+       "
     ));
 
     let f = Expression::name("f");

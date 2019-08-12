@@ -14,7 +14,7 @@ wrapper_declaration = {
   "wrapper" ~ F ~ name ~ F ~ object_declaration_body
 }
 
-object_declaration_body = {
+object_declaration_body = _{
   "{" ~ F ~
      (F ~ (key_value | function_declaration) ~ newline ~ F)* ~ "}"
 }
@@ -33,7 +33,11 @@ body = {
 }
 
 key_value = {
-  variable_name ~ ":" ~ expression
+  key ~ ":" ~ expression
+}
+
+key = {
+  name ~ indexing?
 }
 
 statement = _{

@@ -1,3 +1,5 @@
+/// Type declarations
+
 #[derive(Debug, Clone)]
 pub struct Top {
   declarations: Vec<Declaration>
@@ -11,6 +13,9 @@ impl Top {
   }
 }
 
+
+// Expressions
+
 #[derive(Debug, Clone)]
 pub enum Expression {
   Str(String),
@@ -23,7 +28,7 @@ pub enum Expression {
   BinaryOp(BinaryOp, Box<Expression>, Box<Expression>),
   TernaryOp(Box<Expression>, Box<Expression>, Box<Expression>),
   Call(Box<Expression>, Vec<Expression>),
-  Indexing(Box<Expression>, String, Vec<Expression>),
+  Indexing(Box<Expression>, Accessor, Vec<Expression>),
 }
 
 #[derive(Debug, Clone)]
@@ -32,6 +37,17 @@ pub enum ResourceName {
   InModule(String, Box<ResourceName>)
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Accessor {
+  None,
+  List,
+  Map,
+  Grid,
+  Array
+}
+
+
+// Operators
 
 pub trait Operator {
   fn priority(self) -> i64;
@@ -40,13 +56,29 @@ pub trait Operator {
 
 #[derive(Debug, Clone, Copy)]
 pub enum BinaryOp {
-  Dot, Add, Sub, Mul, Div, Or, And, Lt, Gt, Geq, Leq, Eq, Diff
+  Dot,
+  Add,
+  Sub,
+  Mul,
+  Div,
+  Or,
+  And,
+  Lt,
+  Gt,
+  Geq,
+  Leq,
+  Eq,
+  Diff
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum UnaryOp {
-  Neg, Not
+  Neg,
+  Not
 }
+
+
+// Statements
 
 #[derive(Debug, Clone)]
 pub enum Statement {
@@ -73,9 +105,12 @@ pub enum VarDeclaration {
   Name(String)
 }
 
+// Declarations
+
 #[derive(Debug, Clone)]
 pub enum Declaration {
   Function(FunctionDeclaration),
+  Object(ObjectDeclaration),
 }
 
 #[derive(Debug, Clone)]
@@ -84,6 +119,30 @@ pub struct FunctionDeclaration {
   args: Vec<String>,
   body: Box<Statement>
 }
+
+
+#[derive(Debug, Clone)]
+pub struct ObjectDeclaration {
+  name: String,
+  key_value_pairs: Vec<KeyValue>,
+  methods: Vec<FunctionDeclaration>
+}
+
+
+#[derive(Debug, Clone)]
+pub struct KeyValue {
+  key: Key,
+  value: Expression
+}
+
+#[derive(Debug, Clone)]
+pub enum Key {
+  Name(String),
+  Indexing(String, Accessor, Vec<Expression>)
+}
+
+
+/// Implementations
 
 
 impl Expression {
@@ -136,7 +195,7 @@ impl Expression {
   }
 
   pub fn indexing(value: Expression, op: &str, keys: &[Expression]) -> Expression {
-    Expression::Indexing(box value, String::from(op), Vec::from(keys))
+    Expression::Indexing(box value, op.into(), Vec::from(keys))
   }
 }
 
@@ -219,6 +278,26 @@ impl Operator for BinaryOp {
 
 implement_into_operator_for_str!(BinaryOp);
 
+impl Operator for Accessor {
+  fn from_str(s: &str) -> Self {
+    use Accessor::*;
+
+    match s {
+      ""  => None,
+      "|" => List,
+      "?" => Map,
+      "#" => Grid,
+      "@" => Array,
+      _ => unreachable!()
+    }
+  }
+
+  fn priority(self) -> i64 {
+    return 1;
+  }
+}
+
+implement_into_operator_for_str!(Accessor);
 
 impl Statement {
   pub fn return_op(e: Expression) -> Statement {
@@ -298,6 +377,38 @@ impl Declaration {
         body: box body
       }
     )
+  }
+
+  pub fn object(name: &str,
+                keyvals: &[KeyValue],
+                methods: &[FunctionDeclaration]) -> Declaration {
+
+    Declaration::Object(
+      ObjectDeclaration {
+        name:            String::from(name),
+        key_value_pairs: Vec::from(keyvals),
+        methods:         Vec::from(methods),
+      }
+    )
+  }
+}
+
+impl Key {
+  pub fn name(name: &str) -> Key {
+    Key::Name(String::from(name))
+  }
+
+  pub fn indexing<T: Into<Accessor>>(name: &str, accessor: T, args: &[Expression]) -> Key {
+    Key::Indexing(String::from(name), accessor.into(), Vec::from(args))
+  }
+}
+
+impl KeyValue {
+  pub fn new(key: Key, value: Expression) -> KeyValue {
+    KeyValue {
+      key,
+      value
+    }
   }
 }
 
