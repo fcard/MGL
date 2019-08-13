@@ -19,5 +19,5 @@ A way to program Game Maker while avoiding depending on GUIs (but not necessaril
 # TODO
 
 * Only partial parsing is implemented, oops
-* Coming next: CI Integration; Coverage
+* Coming next: Parsing resources
 
