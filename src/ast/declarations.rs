@@ -6,6 +6,7 @@ use crate::ast::statements::Statement;
 pub enum Declaration {
   Function(FunctionDeclaration),
   Object(ObjectDeclaration),
+  Resource(ResourceDeclaration)
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -22,6 +23,21 @@ pub struct ObjectDeclaration {
   key_value_pairs: Vec<KeyValue>,
   methods: Vec<FunctionDeclaration>,
   wrapper: bool,
+}
+
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResourceDeclaration {
+  kind: ResourceKind,
+  name: String,
+  key_value_pairs: Vec<KeyValue>
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ResourceKind {
+  Sprite,
+  Sound,
+  Room
 }
 
 
@@ -47,7 +63,7 @@ impl Declaration {
         name: String::from(name),
         args: args.iter().map(|x| String::from(*x)).collect(),
         body: box body
-      }
+      },
     )
   }
 
@@ -56,16 +72,27 @@ impl Declaration {
                 methods: &[FunctionDeclaration],
                 wrapper: bool) -> Declaration {
 
-    Declaration::Object(
+    return Declaration::Object(
       ObjectDeclaration {
         name:            String::from(name),
         key_value_pairs: Vec::from(keyvals),
         methods:         Vec::from(methods),
         wrapper:         wrapper
-      }
+      },
+    )
+  }
+
+  pub fn resource(kind: ResourceKind, name: &str, keyvals: &[KeyValue]) -> Declaration {
+    Declaration::Resource(
+      ResourceDeclaration {
+        kind: kind,
+        name: String::from(name),
+        key_value_pairs: Vec::from(keyvals)
+      },
     )
   }
 }
+
 
 impl Key {
   pub fn name(name: &str) -> Key {

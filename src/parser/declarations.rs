@@ -17,10 +17,13 @@ pub fn parse_declaration(pair: Pair) -> Option<Declaration> {
       Some(parse_object(pair, true))
     }
 
+    Rule::resource_declaration => {
+      Some(parse_resource(pair))
+    }
+
     _ => return None
   }
 }
-
 
 pub fn parse_function(pair: Pair) -> Declaration {
   let mut parts = pair.into_inner();
@@ -57,6 +60,22 @@ pub fn parse_object(pair: Pair, wrapper: bool) -> Declaration {
   }
 
   Declaration::object(name, &keyvals, &methods, wrapper)
+}
+
+
+pub fn parse_resource(pair: Pair) -> Declaration {
+  let sub = pair.into_inner().next().unwrap();
+  let rule = sub.as_rule();
+  let mut sub_parts = sub.into_inner();
+  let name = sub_parts.next().unwrap().as_str();
+  let keys = sub_parts.map(parse_key_value).collect::<Vec<_>>();
+  let kind = match rule {
+    Rule::sprite_declaration => ResourceKind::Sprite,
+    Rule::sound_declaration  => ResourceKind::Sound,
+    Rule::room_declaration   => ResourceKind::Room,
+    _ => unreachable!()
+  };
+  Declaration::resource(kind, name, &keys)
 }
 
 
