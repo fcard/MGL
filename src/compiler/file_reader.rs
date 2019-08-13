@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use crate::utility::files::{valid_paths, path_string};
 use crate::ast::Top;
 use crate::parser::parse_code;
+use crate::parser::context::code;
 
 
 pub fn read_project_ast(project_file: Option<PathBuf>) -> Vec<(PathBuf, Top)> {
@@ -47,11 +48,11 @@ pub fn read_ast_and_filename(path: &PathBuf) -> (PathBuf, Top) {
 
 pub fn read_file_as_ast(path: &PathBuf) -> Top {
   match read_to_string(path) {
-    Ok(code) => parse_code(&code),
+    Ok(mgl) => parse_code(code(&mgl)),
 
     Err(e) => {
       eprintln!("An error has occured while trying to read '{}': {}\n", path_string(&path), e);
-      parse_code("")
+      parse_code(code(""))
     }
   }
 }

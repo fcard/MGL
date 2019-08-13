@@ -1,6 +1,7 @@
 #![feature(box_patterns)]
 #![feature(box_syntax)]
 #![feature(decl_macro)]
+#![feature(trait_alias)]
 
 mod utility;
 mod parser;

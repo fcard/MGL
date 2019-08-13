@@ -40,7 +40,7 @@ key = {
   name ~ indexing?
 }
 
-// for the unit tests
+// for unit tests
 statement_non_silent = {
   statement
 }
