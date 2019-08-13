@@ -163,6 +163,11 @@ fn test_expression_multiple_ops() {
   assert_parse_expr!("a - b - c", bin("-", &bin("-", &a, &b), &c));
   assert_parse_expr!("a * b + c", bin("+", &bin("*", &a, &b), &c));
   assert_parse_expr!("a + b * c", bin("+", &a, &bin("*", &b, &c)));
+  assert_parse_expr!("a + b / c", bin("+", &a, &bin("/", &b, &c)));
+
+  assert_parse_expr!("a > b  || c < d",  bin("||", &bin(">", &a, &b), &bin("<", &c, &d)));
+  assert_parse_expr!("a != b && c == d", bin("&&", &bin("!=", &a, &b), &bin("==", &c, &d)));
+  assert_parse_expr!("a >= b && c <= d", bin("&&", &bin(">=", &a, &b), &bin("<=", &c, &d)));
 
   assert_parse_expr!("a + f(x)", bin("+", &a, &fx));
   assert_parse_expr!("f(x) + a", bin("+", &fx, &a));

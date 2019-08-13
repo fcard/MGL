@@ -101,14 +101,14 @@ impl Operator for BinaryOp {
       Div   => 2,
       Add   => 3,
       Sub   => 3,
-      And   => 4,
-      Or    => 5,
-      Lt    => 6,
-      Gt    => 6,
-      Geq   => 6,
-      Leq   => 6,
-      Eq    => 6,
-      Diff  => 6,
+      Lt    => 4,
+      Gt    => 4,
+      Geq   => 4,
+      Leq   => 4,
+      Eq    => 4,
+      Diff  => 4,
+      And   => 5,
+      Or    => 6,
     }
   }
 }
