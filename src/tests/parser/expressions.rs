@@ -172,6 +172,7 @@ fn test_expression_multiple_ops() {
   assert_parse_expr!("a + f(x)", bin("+", &a, &fx));
   assert_parse_expr!("f(x) + a", bin("+", &fx, &a));
 
+  assert_parse_expr!("!a.b",   uny("!", &bin(".", &a, &b)));
   assert_parse_expr!("!a + b", bin("+", &uny("!", &a), &b));
   assert_parse_expr!("a + !b", bin("+", &a, &uny("!", &b)));
   assert_parse_expr!("-a + b", bin("+", &uny("-", &a), &b));
