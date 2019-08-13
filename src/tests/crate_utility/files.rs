@@ -16,10 +16,11 @@ fn test_utility_files_path_string() {
   }
 }
 
+#[test]
 fn test_utility_files_valid_paths() {
   let mut counter = 0;
   for _path in valid_paths(read_dir("examples/project").unwrap()) {
     counter += 1;
   }
-  assert_eq!(counter, 2);
+  assert_eq!(counter, 3);
 }
