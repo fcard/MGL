@@ -1,0 +1,19 @@
+object hello {
+  hello_default: "World"
+
+  function say_hello(to) {
+    if to == "" {
+      to = self.hello_default
+    }
+    print("Hello " + to)
+  }
+}
+
+function double(x) {
+  return 2 * x
+}
+
+function factorial(n) {
+  return n == 0 ? 1 : n * factorial(n - 1)
+}
+

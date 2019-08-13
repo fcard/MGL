@@ -2,59 +2,40 @@
 #![feature(box_syntax)]
 #![feature(decl_macro)]
 
+mod utility;
 mod parser;
 mod ast;
+mod resources;
+mod command_line;
+mod compiler;
 
 #[cfg(test)]
 mod tests;
 
-use parser::parse_code;
-use ast::*;
-
-mod resources;
+use utility::files::*;
+use command_line::{interpret_arguments, Action};
+use compiler::file_reader::*;
 
 fn main() {
-    println!("{:?}", parse_code(
-      "function f(x) {
-         var y
-         var a=1, b
-         var u, v
-         var c = \"x\"
-         var d, e = 99.15
+  let command = interpret_arguments();
 
-         if !(x > 2) == (k - 1)  {
-           a = 2
-           b = !x ? !p : !z
-           c = !a + !b
-           d = a + b * c + d
-           e = a * b + c + d
-           f = a + b + c * d
-           g = a + b ? c + d : e + f
-           h = a + (b ? c + d : e + f)
-           i = (a + b) * c + d
-           j = a - b + c
-           k = a + b - c
-           l = a - b - c
+  match command.action {
+    Action::Compile => {
+      println!("Not functional yet, sorry!");
+    }
 
-           with sprite::hello {
-             return x[1,1] + f(1)
-           }
-         }
-       }
+    Action::ShowAst(pretty) => {
+      let mut asts = read_project_ast(command.project_file);
+      asts.append(&mut command.files.iter().map(read_ast_and_filename).collect());
 
-       object hello {
-         a: 10
-         b[0]: 12
-
-         function g(x,y) {
-           return a + b[0]
-         }
-       }
-       "
-    ));
-
-    let f = Expression::name("f");
-    let x = Expression::name("x");
-    let y = Expression::name("y");
-    println!("{:?}", Expression::call(f, &[x, y]));
+      for (path, ast) in asts {
+        println!("[{}]", path_string(&path));
+        if pretty {
+          println!("{:#?}\n", ast);
+        } else {
+          println!("{:?}\n", ast);
+        }
+      }
+    }
+  }
 }
