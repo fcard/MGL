@@ -36,3 +36,4 @@ pub fn function(code: &str) -> FunctionDeclaration {
     panic!("Not a function declaration!\n '{}'", code)
   }
 }
+
