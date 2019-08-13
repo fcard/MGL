@@ -3,7 +3,7 @@
 
 A way to program Game Maker while avoiding depending on GUIs (but not necessarily giving them up), as well as having extra features inspired by more advanced programming languages.
 
-# Features
+# (Planned) Features
 
 * Game Maker Studio 1 & 2 syntatic features can be used in earlier versions
 * Functions instead of scripts, as well as object methods
@@ -15,9 +15,10 @@ A way to program Game Maker while avoiding depending on GUIs (but not necessaril
 
 * Minor, optional compile-time type checking
 * AST-aware macros and metaprogramming
+* Alternative compile targets
 
 # TODO
 
 * Only partial parsing is implemented, oops
-* Coming next: Parsing resources
+* Coming next: Creating resource trees from code
 

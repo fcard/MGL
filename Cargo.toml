@@ -1,6 +1,6 @@
 [package]
 name = "mgl"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["phicr"]
 edition = "2018"
 
