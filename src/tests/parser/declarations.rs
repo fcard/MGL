@@ -27,17 +27,19 @@ fn test_declaration_object() {
     Declaration::object(
       "hello",
       &[KeyValue::new(Key::name("a"), expr("1"))],
-      &[]
+      &[],
+      false,
     )
   );
 
   assert_parse_declaration!(
-    "object world { b: true\n alarm[0]: 100\n }",
+    "wrapper world { b: true\n alarm[0]: 100\n }",
     Declaration::object(
       "world",
       &[KeyValue::new(Key::name("b"), expr("true")),
         KeyValue::new(Key::indexing("alarm", "", &[expr("0")]), expr("100"))],
-      &[]
+      &[],
+      true,
     )
   );
 
@@ -53,7 +55,8 @@ fn test_declaration_object() {
     Declaration::object(
       "methodical",
       &[KeyValue::new(Key::name("field"), expr("value + extra"))],
-      &[function("function method(argument) { return argument + self.field\n }")]
+      &[function("function method(argument) { return argument + self.field\n }")],
+      false,
     )
   );
 }

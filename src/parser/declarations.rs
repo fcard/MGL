@@ -10,11 +10,11 @@ pub fn parse_declaration(pair: Pair) -> Option<Declaration> {
     }
 
     Rule::object_declaration => {
-      Some(parse_object(pair))
+      Some(parse_object(pair, false))
     }
 
     Rule::wrapper_declaration => {
-      unimplemented!()
+      Some(parse_object(pair, true))
     }
 
     _ => return None
@@ -32,7 +32,7 @@ pub fn parse_function(pair: Pair) -> Declaration {
 }
 
 
-pub fn parse_object(pair: Pair) -> Declaration {
+pub fn parse_object(pair: Pair, wrapper: bool) -> Declaration {
   let mut parts = pair.into_inner();
   let name = parts.next().unwrap().as_str();
   let mut methods = Vec::new();
@@ -56,7 +56,7 @@ pub fn parse_object(pair: Pair) -> Declaration {
     }
   }
 
-  Declaration::object(name, &keyvals, &methods)
+  Declaration::object(name, &keyvals, &methods, wrapper)
 }
 
 

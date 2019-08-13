@@ -20,7 +20,8 @@ pub struct FunctionDeclaration {
 pub struct ObjectDeclaration {
   name: String,
   key_value_pairs: Vec<KeyValue>,
-  methods: Vec<FunctionDeclaration>
+  methods: Vec<FunctionDeclaration>,
+  wrapper: bool,
 }
 
 
@@ -52,13 +53,15 @@ impl Declaration {
 
   pub fn object(name: &str,
                 keyvals: &[KeyValue],
-                methods: &[FunctionDeclaration]) -> Declaration {
+                methods: &[FunctionDeclaration],
+                wrapper: bool) -> Declaration {
 
     Declaration::Object(
       ObjectDeclaration {
         name:            String::from(name),
         key_value_pairs: Vec::from(keyvals),
         methods:         Vec::from(methods),
+        wrapper:         wrapper
       }
     )
   }
