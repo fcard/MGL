@@ -1,4 +1,5 @@
 # MGL
+[![Build Status](https://travis-ci.org/fcard/MGL.svg?branch=master)](https://travis-ci.org/fcard/MGL) [![codecov](https://codecov.io/gh/fcard/MGL/branch/master/graph/badge.svg)](https://codecov.io/gh/fcard/MGL)
 
 A way to program Game Maker while avoiding depending on GUIs (but not necessarily giving them up), as well as having extra features inspired by more advanced programming languages.
 
