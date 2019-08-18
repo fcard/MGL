@@ -16,14 +16,12 @@ pub fn parse_unwrap<T: FromStr<Err=MglError>>(code: &str) -> T {
   code.parse().unwrap()
 }
 
-macro parse_unwrap_aliases {
-  ($($func: ident -> $T: ty;)*) => {
-    $(
-      pub fn $func(code: &str) -> $T {
-        parse_unwrap(code)
-      }
-    )*
-  }
+macro parse_unwrap_aliases($($func: ident -> $T: ty;)*) {
+  $(
+    pub fn $func(code: &str) -> $T {
+      parse_unwrap(code)
+    }
+  )*
 }
 
 parse_unwrap_aliases! {
@@ -34,19 +32,15 @@ parse_unwrap_aliases! {
   function    -> FunctionDeclaration;
 }
 
-pub macro resource {
-  ($($arg: expr),*) => {
-    Declaration::Resource(ResourceDeclaration::new($($arg),*))
-  }
+pub macro resource($($arg: expr),*) {
+  Declaration::Resource(ResourceDeclaration::new($($arg),*))
 }
 
 
-pub macro keys {
-  ($($k: tt)*) => {
-    stringify!($($k)*)
-      .split(",")
-      .map(|s| s.trim().parse().unwrap())
-      .collect::<Vec<KeyValue>>()
-  }
+pub macro keys($($k: tt)*) {
+  stringify!($($k)*)
+    .split(",")
+    .map(|s| s.trim().parse().unwrap())
+    .collect::<Vec<KeyValue>>()
 }
 
