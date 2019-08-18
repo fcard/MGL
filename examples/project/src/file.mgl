@@ -1,0 +1,28 @@
+object countdown {
+  create: countdown::on_create
+  destroy: countdown::on_destroy
+  alarm[0]: countdown::on_alarm0
+
+  function on_create() {
+    alarm[0] = 100
+  }
+
+  function on_destroy() {
+    if alarm[0] > 0 {
+      print("Countdown ended prematurely")
+    }
+  }
+
+  function on_alarm0() {
+    print("End of countdown")
+  }
+}
+
+function add(x,y) {
+  return x + y
+}
+
+function sub(x,y) {
+  return x - y
+}
+

@@ -11,10 +11,18 @@ pub struct Command {
 pub enum Action {
   Compile,
   ShowAst(bool),
+  Project(bool),
 }
 
 
 fn generate_app<'a, 'b>() -> App<'a, 'b> {
+  let pretty = Arg::with_name("pretty")
+               .long("pretty")
+               .takes_value(true)
+               .value_name("value")
+               .possible_values(&["yes", "true", "no", "false"])
+               .help("Pretty printing");
+
   App::new("MGL")
     .version(&crate_version!()[..])
     .about("Compiles code into a Game Maker project")
@@ -49,13 +57,11 @@ fn generate_app<'a, 'b>() -> App<'a, 'b> {
 
     .subcommand(SubCommand::with_name("ast")
                 .about("Show AST for all input files")
-                .arg(Arg::with_name("pretty")
-                     .long("pretty")
-                     .takes_value(true)
-                     .value_name("value")
-                     .possible_values(&["yes", "no"])
-                     .help("Pretty printing")))
+                .arg(pretty.clone()))
 
+    .subcommand(SubCommand::with_name("project")
+                .about("Show final project output as text")
+                .arg(pretty))
 }
 
 
@@ -73,17 +79,17 @@ pub fn interpret_arguments() -> Command {
 fn interpret_subcommand(matches: &ArgMatches) -> Action {
   match matches.subcommand() {
     ("compile", _) => Action::Compile,
-
-    ("ast", Some(ast_matches)) => {
-      Action::ShowAst(
-        match ast_matches.value_of("pretty").unwrap_or("yes") {
-          "yes" => true,
-          "no"  => false,
-          _     => unreachable!()
-        }
-      )
-    }
+    ("project", m) => Action::Project(interpret_pretty(&m.unwrap())),
+    ("ast",     m) => Action::ShowAst(interpret_pretty(&m.unwrap())),
     _ => unreachable!()
+  }
+}
+
+fn interpret_pretty(matches: &ArgMatches) -> bool {
+  match matches.value_of("pretty").unwrap_or("yes") {
+    "yes" | "true"  => true,
+    "no"  | "false" => false,
+    _     => unreachable!()
   }
 }
 

@@ -22,5 +22,5 @@ fn test_utility_files_valid_paths() {
   for _path in valid_paths(read_dir("examples/project").unwrap()) {
     counter += 1;
   }
-  assert_eq!(counter, 3);
+  assert_eq!(counter, 2);
 }
