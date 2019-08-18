@@ -24,7 +24,7 @@ pub fn parse_field_default<T: FromExpression>(key: Key, expr: Expression) -> Res
     Ok(value) => Ok(value),
 
     Err(MglError::ConvertExpression { value, into_type }) => {
-      Err(MglError::Field { value, value_type: into_type, field_name: String::from(field) })
+      MglError::wrong_field_type(value, &into_type, field)
     }
 
     error => error

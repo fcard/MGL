@@ -22,7 +22,7 @@ impl ErrorMessageProvider for DefaultErrorMessages {
   }
 
   fn field_type_error(e: MglError) -> String {
-    if let MglError::Field { field_name, value_type, .. } = e {
+    if let MglError::WrongFieldType { field_name, value_type, .. } = e {
       format!(
         "Invalid value for the field {}: must be a {}",
         field_name,
@@ -35,7 +35,7 @@ impl ErrorMessageProvider for DefaultErrorMessages {
   }
 
   fn field_value_error(e: MglError) -> String {
-    if let MglError::Field { field_name, .. } = e {
+    if let MglError::WrongFieldType { field_name, .. } = e {
       format!(
         "Invalid value for the field {}: unknown value",
         field_name,

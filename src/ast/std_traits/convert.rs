@@ -43,3 +43,4 @@ implement_try_from_string_options! {
 
 implement_try_from_for_numbers!(u8, u32, u64, i32, i64, f32, f64, usize);
 implement_try_from_wrap_option!(PathBuf, ResourceName);
+

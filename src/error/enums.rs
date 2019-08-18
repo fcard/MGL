@@ -13,7 +13,7 @@ pub enum MglError {
     rules: Vec<Rule>,
   },
 
-  Field {
+  WrongFieldType {
     value: Expression,
     field_name: String,
     value_type: String,
@@ -67,6 +67,16 @@ impl MglError {
       MglError::InvalidField {
         kind,
         field: String::from(field)
+      }
+    )
+  }
+
+  pub fn wrong_field_type<T>(value: Expression, field_name: &str, value_type: &str) -> Result<T> {
+    Err(
+      MglError::WrongFieldType {
+        value,
+        field_name: String::from(field_name),
+        value_type: String::from(value_type),
       }
     )
   }

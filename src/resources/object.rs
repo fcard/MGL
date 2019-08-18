@@ -49,9 +49,7 @@ fn parse_event_value(key: &Key, expr: &Expression) -> Result<ResourceName> {
       }
     }
     _ => {
-      let field_name = String::from(key.name_of());
-      let value_type = String::from("script name");
-      Err(MglError::Field { value: expr.clone(), field_name, value_type })
+      MglError::wrong_field_type(expr.clone(), &key.name_of(), "script name")
     }
   }
 }

@@ -3,7 +3,7 @@ use crate::ast::*;
 use crate::error::*;
 use crate::resources::resource_trait::*;
 
-#[derive(PartialEq, Default, Resource)]
+#[derive(Debug, PartialEq, Default, Resource)]
 struct ResourceTest {
   normal_field_1: i64,
   normal_field_2: String,
@@ -22,7 +22,7 @@ struct ResourceTest {
   other: i32,
 }
 
-#[derive(PartialEq, Default, Resource)]
+#[derive(Debug, PartialEq, Default, Resource)]
 struct SubResourceTest {
   sub_field: u32,
 }
@@ -61,4 +61,23 @@ fn test_resources_trait() {
   assert_eq!(resource.sub_array_field.get(0).unwrap().sub_field, 4);
   assert_eq!(resource.sub_array_field.get(5).unwrap().sub_field, 5);
 }
+
+#[test]
+fn test_resources_trait_fail() {
+  use InvalidFieldKind::*;
+
+  let resource = |keys| ResourceTest::new(ResourceKeyValues(keys));
+  let err1 = resource(keys![unknown_field: 404]);
+  let err2 = resource(keys![normal_field_1[0]: 1]);
+  let err3 = resource(keys![array_field: 2]);
+  let err4 = resource(keys![sub_resource: 3]);
+  let err5 = resource(keys![normal_field_1: "a"]);
+
+  assert_eq!(err1, MglError::invalid_field("unknown_field",  NotFound));
+  assert_eq!(err2, MglError::invalid_field("normal_field_1", NotSimple(key("normal_field_1[0]"))));
+  assert_eq!(err3, MglError::invalid_field("array_field",    NotArray(key("array_field"))));
+  assert_eq!(err4, MglError::invalid_field("sub_resource",   NotSubResource(key("sub_resource"))));
+  assert_eq!(err5, MglError::wrong_field_type(expr("\"a\""), "number (i64)", "normal_field_1"));
+}
+
 
