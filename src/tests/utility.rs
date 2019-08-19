@@ -30,6 +30,7 @@ parse_unwrap_aliases! {
   declaration -> Declaration;
   key         -> Key;
   function    -> FunctionDeclaration;
+  instance    -> InstanceDeclaration;
 }
 
 pub macro resource($($arg: expr),*) {
@@ -37,10 +38,14 @@ pub macro resource($($arg: expr),*) {
 }
 
 
-pub macro keys($($k: tt)*) {
-  stringify!($($k)*)
-    .split(",")
-    .map(|s| s.trim().parse().unwrap())
-    .collect::<Vec<KeyValue>>()
+pub macro keys {
+  () => { Vec::new() },
+
+  ($($k: tt)+) => {
+    stringify!($($k)*)
+      .split(",")
+      .map(|s| s.trim().parse().unwrap())
+      .collect::<Vec<KeyValue>>()
+  }
 }
 

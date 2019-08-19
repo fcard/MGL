@@ -68,14 +68,16 @@ impl FunctionDeclaration {
 
 impl InstanceDeclaration {
   pub fn new(object_expression: Expression, name: &str, keyvals: &[KeyValue]) -> Self {
-    if let Expression::Resource(object_name) = object_expression {
-      InstanceDeclaration {
-        name:            String::from(name),
-        object:          object_name,
-        key_value_pairs: Vec::from(keyvals)
-      }
-    } else {
-      unreachable!()
+    let object_name;
+    match object_expression {
+      Expression::Resource(name) => { object_name = name },
+      Expression::Name(name)     => { object_name = ResourceName::Name(name) }
+      _ => unreachable!()
+    }
+    InstanceDeclaration {
+      name:            String::from(name),
+      object:          object_name,
+      key_value_pairs: Vec::from(keyvals)
     }
   }
 }

@@ -45,7 +45,7 @@ resource_item = _{
 }
 
 instance_of = {
-  resource
+  (resource | name)
 }
 
 function_declaration = {
