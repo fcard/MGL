@@ -63,7 +63,7 @@ fn test_resources_sprite() {
 
 #[test]
 fn test_resources_sound() {
-  let s = Sound::new(resource(r#"
+  let mut s = Sound::new(resource(r#"
     sound s {
       kind: "background"
       data: "sounds/s.wav"
