@@ -2,8 +2,8 @@ use crate::ast::*;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Script {
-  source: FunctionDeclaration,
-  kind: ScriptKind,
+  pub source: FunctionDeclaration,
+  pub kind: ScriptKind,
 }
 
 #[derive(Debug, Clone, PartialEq)]

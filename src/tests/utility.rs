@@ -31,6 +31,7 @@ parse_unwrap_aliases! {
   key         -> Key;
   function    -> FunctionDeclaration;
   instance    -> InstanceDeclaration;
+  resource    -> ResourceDeclaration;
 }
 
 pub macro resource($($arg: expr),*) {

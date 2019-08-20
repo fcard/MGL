@@ -4,17 +4,17 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq, Resource)]
 pub struct Sound {
-  kind: SoundKind,
-  data: PathBuf,
-  volume: f64,
-  pan: f64,
-  bit_rate: u64,
-  sample_rate: u64,
-  bit_depth: u64,
-  preload: bool,
-  compress: bool,
-  uncompress_on_load: bool,
-  audio_group: usize,
+  pub kind: SoundKind,
+  pub data: PathBuf,
+  pub volume: f64,
+  pub pan: f64,
+  pub bit_rate: u64,
+  pub sample_rate: u64,
+  pub bit_depth: u64,
+  pub preload: bool,
+  pub compress: bool,
+  pub uncompress_on_load: bool,
+  pub audio_group: usize,
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -1,3 +1,3 @@
 mod resource_trait;
-//mod object;
+mod declarations;
 

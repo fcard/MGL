@@ -6,53 +6,53 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq, Resource)]
 pub struct Sprite {
-  collision_kind: CollisionKind,
-  collision_tolerance: u8,
-  separate_masks: bool,
-  width: u64,
-  height: u64,
+  pub collision_kind: CollisionKind,
+  pub collision_tolerance: u8,
+  pub separate_masks: bool,
+  pub width: u64,
+  pub height: u64,
 
   #[sub_resource]
-  origin: SpriteOrigin,
+  pub origin: SpriteOrigin,
 
   #[array_field]
   #[sub_resource]
-  frames: Vec<Frame>,
+  pub frames: Vec<Frame>,
 
   #[sub_resource]
-  bounding_box: BoundingBox,
+  pub bounding_box: BoundingBox,
 
   #[sub_resource]
-  texture: Texture,
+  pub texture: Texture,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Resource)]
 pub struct BoundingBox {
-  mode: BoundingBoxMode,
-  left: i64,
-  right: i64,
-  top: i64,
-  bottom: i64
+  pub mode: BoundingBoxMode,
+  pub left: i64,
+  pub right: i64,
+  pub top: i64,
+  pub bottom: i64
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Resource)]
 pub struct SpriteOrigin {
-  x: i64,
-  y: i64,
-  center: bool
+  pub x: i64,
+  pub y: i64,
+  pub center: bool
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Resource)]
 pub struct Texture {
-  horizontal: bool,
-  vertical: bool,
-  used_for_3d: bool,
-  texture_group: usize
+  pub horizontal: bool,
+  pub vertical: bool,
+  pub used_for_3d: bool,
+  pub texture_group: usize
 }
 
 #[derive(Debug, Clone, PartialEq, Default, Resource)]
 pub struct Frame {
-  data: Option<PathBuf>
+  pub data: Option<PathBuf>
 }
 
 

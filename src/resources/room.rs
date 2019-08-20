@@ -7,18 +7,18 @@ pub type InstanceItems = Vec<InstanceItem>;
 
 #[derive(Debug, Clone, PartialEq, Resource)]
 pub struct Room {
-  width: u64,
-  height: u64,
-  speed: u64,
-  persistent: bool,
-  enable_views: bool,
-  clear_view_background: bool,
-  clear_display_buffer: bool,
-  color: u32,
-  tiled: Option<PathBuf>,
+  pub width: u64,
+  pub height: u64,
+  pub speed: u64,
+  pub persistent: bool,
+  pub enable_views: bool,
+  pub clear_view_background: bool,
+  pub clear_display_buffer: bool,
+  pub color: u32,
+  pub tiled: Option<PathBuf>,
 
   #[array_field]
-  instances: InstanceItems,
+  pub instances: InstanceItems,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -51,3 +51,4 @@ impl Default for InstanceItem {
     InstanceItem::Unresolved(ResourceName::Name(String::from("")))
   }
 }
+

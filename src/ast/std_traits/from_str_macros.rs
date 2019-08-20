@@ -8,6 +8,7 @@ pub macro implement_from_str {
         type Err = MglError;
 
         fn from_str($s: &str) -> Result<Self> {
+          let $s = $s.trim();
           $func
         }
       }
