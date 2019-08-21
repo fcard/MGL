@@ -128,6 +128,7 @@ fn test_resources_object_events() {
       mouse["global_middle_release"]:   mgmr
       collision[name]:                  coln
       collision[obj::name]:             colr
+      collision[object::name2]:         colo
       other["outside"]:                 oo
       other["boundary"]:                ob
       other["game_start"]:              ogs
@@ -279,6 +280,7 @@ fn test_resources_object_events() {
   assert_event(Event::Mouse(MouseAction::GlobalMiddleRelease), "mgmr");
   assert_event(Event::Collision(res("name")),                  "coln");
   assert_event(Event::Collision(res("obj::name")),             "colr");
+  assert_event(Event::Collision(res("name2")),                 "colo");
   assert_event(Event::Other(OtherEvent::RoomOutside),          "oo");
   assert_event(Event::Other(OtherEvent::RoomBoundary),         "ob");
   assert_event(Event::Other(OtherEvent::GameStart),            "ogs");
@@ -328,6 +330,7 @@ fn test_resources_object_event_errors() {
     InvalidIndexType(String::from(ty))
   };
 
+  assert_eq!(err("a.b"),                   MglError::event(Dot));
   assert_eq!(err("step[\"unknown\"]"),     MglError::event(UnknownStepKind));
   assert_eq!(err("step[0]"),               MglError::event(invalid_type("string")));
   assert_eq!(err("alarm[13]"),             MglError::event(UnknownAlarmKind));
