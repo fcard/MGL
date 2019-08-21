@@ -50,3 +50,6 @@ pub macro keys {
   }
 }
 
+pub macro rn($name: ident$(::$subnames: ident)*) {
+  ResourceName::new(&[stringify!($name)$(, stringify!($subnames))*])
+}

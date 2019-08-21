@@ -16,15 +16,15 @@ pub type Module = Vec<String>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Project {
-  sprites: Items<Sprite>,
-  scripts: Items<Script>,
-  objects: Items<Object>,
-  sounds:  Items<Sound>,
-  fonts:   Items<Font>,
-  rooms:   Items<Room>,
-  module:  Module,
+  pub sprites: Items<Sprite>,
+  pub scripts: Items<Script>,
+  pub objects: Items<Object>,
+  pub sounds:  Items<Sound>,
+  pub fonts:   Items<Font>,
+  pub rooms:   Items<Room>,
+  pub module:  Module,
 
-  instances: HashMap<ResourceName, Instance>
+  pub instances: HashMap<ResourceName, Instance>
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -35,7 +35,7 @@ pub enum Item<F> {
 
 
 #[derive(Debug, Clone, PartialEq)]
-struct Font;
+pub struct Font;
 
 impl Project {
   pub fn new(m: Module) -> Project {
@@ -66,12 +66,13 @@ impl Project {
       }
       AstFileTree::Node(directory, files) |
       AstFileTree::Root(box AstFileTree::Node(directory, files)) => {
-        let mut sprites = Vec::new();
-        let mut scripts = Vec::new();
-        let mut objects = Vec::new();
-        let mut sounds  = Vec::new();
-        let mut fonts   = Vec::new();
-        let mut rooms   = Vec::new();
+        let mut instances = HashMap::new();
+        let mut sprites   = Vec::new();
+        let mut scripts   = Vec::new();
+        let mut objects   = Vec::new();
+        let mut sounds    = Vec::new();
+        let mut fonts     = Vec::new();
+        let mut rooms     = Vec::new();
 
         let from_subtree = |t: &AstFileTree| {
           Project::from_ast_file_tree(t.clone(), m.clone())
@@ -80,6 +81,7 @@ impl Project {
         for subproject in files.iter().map(from_subtree) {
           match subproject {
             Ok(mut subproject) => {
+              instances.extend(subproject.instances);
               sprites.append(&mut subproject.sprites);
               scripts.append(&mut subproject.scripts);
               objects.append(&mut subproject.objects);
@@ -92,6 +94,7 @@ impl Project {
             }
           }
         }
+        project.instances.extend(instances);
 
         if is_root {
           project.sprites = sprites;
