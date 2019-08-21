@@ -1,6 +1,6 @@
 use crate::ast::operators::*;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression {
   Str(String),
   Num(String),
@@ -15,7 +15,7 @@ pub enum Expression {
   Indexing(Box<Expression>, Accessor, Vec<Expression>),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ResourceName {
   Name(String),
   InModule(String, Box<ResourceName>)
@@ -45,15 +45,7 @@ impl Expression {
   }
 
   pub fn resource(names: &[&str]) -> Expression {
-    let mut resource = None;
-
-    for name in names.iter().rev() {
-      resource = Some(match resource {
-        None      => ResourceName::Name(String::from(*name)),
-        Some(res) => ResourceName::InModule(String::from(*name), box res)
-      });
-    }
-    Expression::Resource(resource.unwrap())
+    Expression::Resource(ResourceName::new(names))
   }
 
   pub fn unary_op<T: Into<UnaryOp>>(op: T, e: Expression) -> Expression {
@@ -74,6 +66,27 @@ impl Expression {
 
   pub fn indexing<T: Into<Accessor>>(value: Expression, op: T, keys: &[Expression]) -> Expression {
     Expression::Indexing(box value, op.into(), Vec::from(keys))
+  }
+}
+
+impl ResourceName {
+  pub fn new(names: &[&str]) -> ResourceName {
+    let mut resource = None;
+
+    for name in names.iter().rev() {
+      resource = Some(match resource {
+        None      => ResourceName::Name(String::from(*name)),
+        Some(res) => ResourceName::InModule(String::from(*name), box res)
+      });
+    }
+    resource.unwrap()
+  }
+
+  pub fn top_module_is(&self, name: &str) -> bool {
+    match &self {
+      ResourceName::Name(_) => false,
+      ResourceName::InModule(module, _) => &*module == name
+    }
   }
 }
 

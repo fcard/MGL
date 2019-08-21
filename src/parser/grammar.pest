@@ -3,40 +3,23 @@ top = {SOI ~ filler ~ (top_expression ~ filler)* ~ EOI}
 top_expression = _{
   object_declaration   |
   wrapper_declaration  |
-  resource_declaration |
+  instance_declaration |
+  room_declaration     |
+  sound_declaration    |
+  sprite_declaration   |
   function_declaration
 }
 
 object_declaration = {
-  "object" ~ F ~ name ~ F ~ object_declaration_body
+  "object" ~ F ~ name ~ F ~ resource_body
 }
 
 wrapper_declaration = {
-  "wrapper" ~ F ~ name ~ F ~ object_declaration_body
+  "wrapper" ~ F ~ name ~ F ~ resource_body
 }
 
-object_declaration_body = _{
-  "{" ~ F ~
-     (F ~ (key_value | function_declaration) ~ newline ~ F)* ~ "}"
-}
-
-function_declaration = {
-  "function" ~ F ~ name ~ F ~
-  function_arguments_declaration ~ F ~ body
-}
-
-function_arguments_declaration = {
-  "(" ~ F ~ ((name ~ F ~ "," ~ F)* ~ name)? ~ F ~ ")"
-}
-
-body = {
-  "{" ~ F ~ (F ~ statement ~ newline ~ F)* ~ "}"
-}
-
-resource_declaration = {
-  sprite_declaration |
-  sound_declaration |
-  room_declaration
+instance_declaration = {
+  "instance" ~ F ~ name ~ F ~ "of" ~ F ~ instance_of ~ F ~ resource_body
 }
 
 sprite_declaration = {
@@ -52,15 +35,43 @@ room_declaration = {
 }
 
 resource_body = _{
-  "{" ~ F ~ (key_value ~ newline ~ F)* ~ "}"
+  "{" ~ F ~ (F ~ resource_item ~ newline ~ F)* ~ "}"
 }
+
+resource_item = _{
+  key_value |
+  function_declaration |
+  instance_declaration
+}
+
+instance_of = {
+  (resource | name)
+}
+
+function_declaration = {
+  "function" ~ F ~ name ~ F ~
+  function_arguments_declaration ~ F ~ body
+}
+
+function_arguments_declaration = {
+  "(" ~ F ~ ((name ~ F ~ "," ~ F)* ~ name)? ~ F ~ ")"
+}
+
+body = {
+  "{" ~ F ~ (F ~ statement ~ newline ~ F)* ~ "}"
+}
+
 
 key_value = {
   key ~ ":" ~ expression
 }
 
 key = {
-  name ~ indexing?
+  name ~ F ~ key_indexing? ~ (F ~ "." ~ F ~ name ~ F ~ key_indexing?)*
+}
+
+key_indexing = {
+  "[" ~ F ~ expr ~ F ~ "]"
 }
 
 // for unit tests

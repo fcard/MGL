@@ -1,68 +1,67 @@
 use crate::parser::grammar::*;
-use crate::parser::context::*;
 use crate::parser::*;
+use crate::error::*;
 
-macro v {
-  ($code: expr) => {code($code).verbose_errors(false)}
+use ParserErrorKind::*;
+
+fn test_parser_error(code: &str, err: ParserErrorKind) {
+  if let Err(MglError::Parser { error_kind, .. }) = parse_code(code) {
+    assert_eq!(error_kind, err)
+
+  } else {
+    panic!("Not a parser error")
+  }
 }
 
 #[test]
 #[should_panic]
 fn test_parser_error_wrong_rule() {
-  parse_mgl(Rule::expression, "");
+  parse_mgl(Rule::expression, "").unwrap();
 }
 
 #[test]
 #[should_panic]
-fn test_parser_error_message_any() {
-  parse_code("a");
+fn test_parser_error_any() {
+  parse_code("a").unwrap();
 }
 
 #[test]
-#[should_panic(expected = "Expected object, function or resource declaration.")]
-fn test_parser_error_message_1() {
-  parse_code(v!("a"));
+fn test_parser_error_missing_declaration() {
+  test_parser_error("a", MissingDeclaration);
 }
 
 #[test]
-#[should_panic(expected = "Expected method or key-value pair.")]
-fn test_parser_error_message_2() {
-  parse_code(v!("object a {,}"));
+fn test_parser_error_missing_declaration_item() {
+  test_parser_error("object a {,}", MissingDeclarationItem);
 }
 
 #[test]
-#[should_panic(expected = "Function is missing its argument names.")]
-fn test_parser_error_message_3() {
-  parse_code(v!("object a {function f {}\n}"));
+fn test_parser_error_missing_arguments() {
+  test_parser_error("object a {function f {}\n}", MissingArguments);
 }
 
 #[test]
-#[should_panic(expected = "Missing statement body.")]
-fn test_parser_error_message_4() {
-  parse_code(v!("object a {function f ()\n}"));
+fn test_parser_error_missing_body() {
+  test_parser_error("object a {function f ()\n}", MissingBody);
 }
 
 #[test]
-#[should_panic(expected = "Incomplete statement: must be a call or assignment, ended by a newline.")]
-fn test_parser_error_message_5() {
-  parse_code(v!("object a {function f () {a\n}\n}"));
+fn test_parser_error_incomplete_statement() {
+  test_parser_error("object a {function f () {a\n}\n}", IncompleteStatement);
 }
 
 #[test]
-#[should_panic(expected = "Unexpected character or EOF while parsing a statement.")]
-fn test_parser_error_message_6() {
-  parse_code(v!("object a { function f() {"));
+fn test_parser_error_unexpected_eof() {
+  test_parser_error("object a { function f() {", UnexpectedCharOrEof);
 }
 
 #[test]
-#[should_panic(expected = "Expected a name.")]
-fn test_parser_error_message_7() {
-  parse_code(v!("object {}"));
+fn test_parser_error_missing_name() {
+  test_parser_error("object {}", MissingName);
 }
 
 #[test]
-#[should_panic(expected = "Unexpected character.")]
-fn test_parser_error_message_default() {
-  parse_code(v!("object a {a: b %* c}"));
+fn test_parser_error_unknown() {
+  test_parser_error("object a {a: b %* c}", Unknown);
 }
 

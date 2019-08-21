@@ -1,0 +1,28 @@
+sprite s {
+  frames[0]: "images/s0.png"
+}
+
+sound s {
+  data: "sounds/s.mp3"
+}
+
+object o {
+  sprite: s
+}
+
+instance i of o {
+  x: 20
+  y: 20
+}
+
+room r {
+  width: 100
+  height: 80
+
+ instance ri of o {
+   x: 1
+   y: 1
+ }
+
+ instances[1]: i
+}

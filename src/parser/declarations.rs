@@ -2,106 +2,111 @@ use crate::ast::*;
 use crate::parser::grammar::*;
 use crate::parser::statements::*;
 use crate::parser::expressions::*;
+use ResourceKind::*;
 
 pub fn parse_declaration(pair: Pair) -> Option<Declaration> {
   match pair.as_rule() {
     Rule::function_declaration => {
-      Some(parse_function(pair))
+      Some(Declaration::Function(parse_function(pair)))
+    }
+
+    Rule::instance_declaration => {
+      Some(Declaration::Instance(parse_instance(pair)))
     }
 
     Rule::object_declaration => {
-      Some(parse_object(pair, false))
+      Some(Declaration::Resource(parse_resource(pair, Object)))
     }
 
     Rule::wrapper_declaration => {
-      Some(parse_object(pair, true))
+      Some(Declaration::Resource(parse_resource(pair, Wrapper)))
     }
 
-    Rule::resource_declaration => {
-      Some(parse_resource(pair))
+    Rule::room_declaration => {
+      Some(Declaration::Resource(parse_resource(pair, Room)))
+    }
+
+    Rule::sound_declaration => {
+      Some(Declaration::Resource(parse_resource(pair, Sound)))
+    }
+
+    Rule::sprite_declaration => {
+      Some(Declaration::Resource(parse_resource(pair, Sprite)))
     }
 
     _ => return None
   }
 }
 
-pub fn parse_function(pair: Pair) -> Declaration {
+pub fn parse_function(pair: Pair) -> FunctionDeclaration {
   let mut parts = pair.into_inner();
   let name = parts.next().unwrap().as_str();
   let args = parts.next().unwrap().into_inner().map(|p| p.as_str()).collect::<Vec<_>>();
   let body = parts.next().unwrap();
 
-  Declaration::function(name, &args, parse_body(body))
+  FunctionDeclaration::new(name, &args, parse_body(body))
 }
 
 
-pub fn parse_object(pair: Pair, wrapper: bool) -> Declaration {
+pub fn parse_instance(pair: Pair) -> InstanceDeclaration {
+  let mut parts = pair.into_inner();
+  let name    = parts.next().unwrap().as_str();
+  let object  = parse_expression(parts.next().unwrap());
+  let keyvals = parts.map(parse_key_value).collect::<Vec<_>>();
+
+  InstanceDeclaration::new(object, name, &keyvals)
+}
+
+
+pub fn parse_resource(pair: Pair, kind: ResourceKind) -> ResourceDeclaration {
+  let mut methods   = Vec::new();
+  let mut keyvalues = Vec::new();
+  let mut instances = Vec::new();
+
   let mut parts = pair.into_inner();
   let name = parts.next().unwrap().as_str();
-  let mut methods = Vec::new();
-  let mut keyvals = Vec::new();
 
   for item in parts {
     match item.as_rule() {
-      Rule::function_declaration => {
-        if let Declaration::Function(function) = parse_function(item) {
-          methods.push(function)
-        } else {
-          unreachable!()
-        }
-      }
-
-      Rule::key_value => {
-        keyvals.push(parse_key_value(item));
-      }
+      Rule::function_declaration => methods.push(parse_function(item)),
+      Rule::instance_declaration => instances.push(parse_instance(item)),
+      Rule::key_value            => keyvalues.push(parse_key_value(item)),
 
       _ => unreachable!()
     }
   }
 
-  Declaration::object(name, &keyvals, &methods, wrapper)
+  ResourceDeclaration::new(kind, name, &keyvalues, &methods, &instances)
 }
-
-
-pub fn parse_resource(pair: Pair) -> Declaration {
-  let sub = pair.into_inner().next().unwrap();
-  let rule = sub.as_rule();
-  let mut sub_parts = sub.into_inner();
-  let name = sub_parts.next().unwrap().as_str();
-  let keys = sub_parts.map(parse_key_value).collect::<Vec<_>>();
-  let kind = match rule {
-    Rule::sprite_declaration => ResourceKind::Sprite,
-    Rule::sound_declaration  => ResourceKind::Sound,
-    Rule::room_declaration   => ResourceKind::Room,
-    _ => unreachable!()
-  };
-  Declaration::resource(kind, name, &keys)
-}
-
 
 pub fn parse_key_value(pair: Pair) -> KeyValue {
   let mut parts = pair.into_inner();
-  let key   = parse_key(parts.next().unwrap());
+  let key   = parse_key(parts.next().unwrap().into_inner());
   let value = parse_expression(parts.next().unwrap());
   KeyValue::new(key, value)
 }
 
+pub fn parse_key(mut pairs: Pairs) -> Key {
+  let name = pairs.next().unwrap().as_str();
+  let mut key = Key::name(name);
 
-pub fn parse_key(pair: Pair) -> Key {
-  let mut parts = pair.into_inner();
-  let name = parts.next().unwrap().as_str();
+  while let Some(pair_rule) = pairs.peek().map(|p| p.as_rule()) {
+    match pair_rule {
+      Rule::name => {
+        let right = parse_key(pairs);
+        key = Key::dot(key, right);
+        break;
+      }
 
-  match parts.next() {
-    None => Key::name(name),
+      Rule::key_indexing => {
+        let index = parse_expression(pairs.next().unwrap());
+        key = Key::indexing(name, index);
+      }
 
-    Some(index) => {
-      let mut index_parts = index.into_inner();
-      let acc = index_parts.next().unwrap().as_str();
-      let args = index_parts.map(parse_expression).collect::<Vec<_>>();
-
-      Key::indexing(name, acc, &args)
+      _ => unreachable!()
     }
   }
+  return key;
 }
 
 

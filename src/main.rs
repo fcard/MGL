@@ -4,8 +4,10 @@
 #![feature(trait_alias)]
 
 mod utility;
+mod error;
 mod parser;
 mod ast;
+mod event;
 mod resources;
 mod command_line;
 mod compiler;
@@ -13,9 +15,10 @@ mod compiler;
 #[cfg(test)]
 mod tests;
 
-use utility::files::*;
+use error::*;
 use command_line::{interpret_arguments, Action};
 use compiler::file_reader::*;
+use compiler::resource_tree::*;
 
 fn main() {
   let command = interpret_arguments();
@@ -25,18 +28,35 @@ fn main() {
       println!("Not functional yet, sorry!");
     }
 
-    Action::ShowAst(pretty) => {
-      let mut asts = read_project_ast(command.project_file);
-      asts.append(&mut command.files.iter().map(read_ast_and_filename).collect());
+    Action::Project(pretty) => {
+      match read_resource_tree(command.project_file) {
+        Ok(tree) => {
+          if pretty {
+            println!("{:#?}", tree);
+          } else {
+            println!("{:?}", tree);
+          }
+        }
 
-      for (path, ast) in asts {
-        println!("[{}]", path_string(&path));
-        if pretty {
-          println!("{:#?}\n", ast);
-        } else {
-          println!("{:?}\n", ast);
+        Err(errors) => {
+          eprintln!("There were errors reading the project!");
+          for error in errors {
+            DefaultErrorMessages::eprintln(error);
+          }
         }
       }
     }
+
+    Action::ShowAst(pretty) => {
+      (|| {
+        let asts  = AstFileTree::from_project(command.project_file)?;
+        let other = command.files.iter().map(AstFileTree::from_file);
+        asts.print(pretty);
+        other.for_each(|ast| ast.unwrap().print(pretty));
+        Ok(())
+
+      })().err().map(|es: Vec<MglError>| for e in es { DefaultErrorMessages::eprintln(e) });
+    }
   }
 }
+

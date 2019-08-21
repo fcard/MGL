@@ -1,8 +1,6 @@
 use crate::ast::*;
-use crate::parser::*;
-use crate::parser::grammar::*;
-use crate::parser::expressions::*;
-use crate::parser::statements::*;
+use crate::error::*;
+use std::str::FromStr;
 
 pub trait CloneAll<T> {
   fn clone_all(&self) -> T;
@@ -14,26 +12,44 @@ impl<T: Clone> CloneAll<Vec<T>> for Vec<&T> {
   }
 }
 
-pub fn expr(code: &str) -> Expression {
-  parse_expression(parse_mgl(Rule::expression, code))
+pub fn parse_unwrap<T: FromStr<Err=MglError>>(code: &str) -> T {
+  code.parse().unwrap()
 }
 
-pub fn statement(code: &str) -> Statement {
-  let pair = parse_mgl(Rule::statement_non_silent, code);
-  let stat = pair.into_inner().next().unwrap();
-  return parse_statement(stat)
+macro parse_unwrap_aliases($($func: ident -> $T: ty;)*) {
+  $(
+    pub fn $func(code: &str) -> $T {
+      parse_unwrap(code)
+    }
+  )*
 }
 
-pub fn declaration(code: &str) -> Declaration {
-  let Top { declarations } = parse_code(code);
-  return (*declarations.iter().next().unwrap()).clone();
+parse_unwrap_aliases! {
+  expr        -> Expression;
+  statement   -> Statement;
+  declaration -> Declaration;
+  key         -> Key;
+  function    -> FunctionDeclaration;
+  instance    -> InstanceDeclaration;
+  resource    -> ResourceDeclaration;
 }
 
-pub fn function(code: &str) -> FunctionDeclaration {
-  if let Declaration::Function(func) = declaration(code) {
-    return func
-  } else {
-    panic!("Not a function declaration!\n '{}'", code)
+pub macro resource($($arg: expr),*) {
+  Declaration::Resource(ResourceDeclaration::new($($arg),*))
+}
+
+
+pub macro keys {
+  () => { Vec::new() },
+
+  ($($k: tt)+) => {
+    stringify!($($k)*)
+      .split(",")
+      .map(|s| s.trim().parse().unwrap())
+      .collect::<Vec<KeyValue>>()
   }
 }
 
+pub macro rn($name: ident$(::$subnames: ident)*) {
+  ResourceName::new(&[stringify!($name)$(, stringify!($subnames))*])
+}

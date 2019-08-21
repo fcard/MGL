@@ -1,3 +1,5 @@
+//! Holds the functions that convert code to ASTs.
+
 pub mod context;
 pub mod grammar;
 pub mod expressions;
@@ -6,6 +8,7 @@ pub mod declarations;
 pub mod error;
 
 use crate::ast::Top;
+use crate::error::*;
 
 use grammar::parse_top;
 use context::ParserContext;
@@ -13,8 +16,8 @@ use declarations::parse_declaration;
 
 pub trait Ctx<'a> = Into<ParserContext<'a>>;
 
-pub fn parse_code<'a, C: Ctx<'a>>(c: C) -> Top {
-  let top_expressions = parse_top(c);
+pub fn parse_code<'a, C: Ctx<'a>>(c: C) -> Result<Top> {
+  let top_expressions = parse_top(c)?;
   let mut declarations = Vec::new();
 
   for top_expression in top_expressions {
@@ -23,6 +26,6 @@ pub fn parse_code<'a, C: Ctx<'a>>(c: C) -> Top {
     }
   }
 
-  Top::new(&declarations)
+  Ok(Top::new(&declarations))
 }
 

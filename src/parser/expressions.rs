@@ -55,7 +55,7 @@ pub fn parse_expression(top_pair: Pair) -> Expression {
           Expression::indexing(expression.unwrap(), acc, &args)
         }
 
-        _ => unreachable!()
+        r => panic!("{:?}", r)
       }
     );
   }
