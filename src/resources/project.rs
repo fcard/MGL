@@ -148,7 +148,7 @@ impl Project {
     }
 
     for instance_ast in &resource.instances {
-      let instance      = Instance::new(instance_ast.clone());
+      let instance      = Instance::new(instance_ast.clone())?;
       let instance_name = full_name_for("instance", &instance_ast.name, &sub_module);
       self.instances.insert(instance_name, instance.clone());
 
@@ -181,7 +181,7 @@ impl Project {
 
   pub fn parse_instance(&mut self, declaration: InstanceDeclaration) -> Result<()>  {
     let instance_name = full_name_for("instance", &declaration.name, &self.module);
-    self.instances.insert(instance_name, Instance::new(declaration));
+    self.instances.insert(instance_name, Instance::new(declaration)?);
     Ok(())
   }
 }

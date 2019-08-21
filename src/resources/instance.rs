@@ -1,30 +1,34 @@
 use crate::ast::*;
+use crate::error::*;
+use crate::resources::resource_trait::*;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Resource)]
 pub struct Instance {
-  object: ResourceName,
-  id: u32,
-  x: i64,
-  y: i64,
-  scale: f64,
-  rotation: f64,
-  alpha: f64,
-  color: u32,
-  creation_code: Option<ResourceName>,
+  pub object: ResourceName,
+  pub id: u32,
+  pub x: i64,
+  pub y: i64,
+  pub scale: f64,
+  pub rotation: f64,
+  pub alpha: f64,
+  pub color: u32,
+  pub creation_code: Option<ResourceName>,
 }
 
-impl Instance {
-  pub fn new(declaration: InstanceDeclaration) -> Self {
-    Instance {
-      object: declaration.object,
-      id: 0,
-      x: 0,
-      y: 0,
-      scale: 1.0,
-      rotation: 0.0,
-      alpha: 1.0,
-      color: 0,
-      creation_code: None,
-    }
+impl ResourceDefault<InstanceDeclaration> for Instance {
+  fn default(declaration: &InstanceDeclaration) -> Result<Self> {
+    Ok(
+      Instance {
+        object: declaration.object.clone(),
+        id: 0,
+        x: 0,
+        y: 0,
+        scale: 1.0,
+        rotation: 0.0,
+        alpha: 1.0,
+        color: 0,
+        creation_code: None,
+      }
+    )
   }
 }

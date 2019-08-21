@@ -1,22 +1,18 @@
 use crate::event::enums::*;
 use crate::ast::*;
+use crate::error::EventErrorKind;
 use std::convert::TryFrom;
 
-pub enum EventParserError {
-  InvalidName,
-  InvalidIndex(String),
-}
+use EventErrorKind::*;
 
-pub fn invalid_index_error<T>(message: &str) -> Result<T, EventParserError> {
-  Err(EventParserError::InvalidIndex(String::from(message)))
-}
+type Result<T> = std::result::Result<T, EventErrorKind>;
 
 impl TryFrom<Key> for Event {
-  type Error = EventParserError;
+  type Error = EventErrorKind;
 
-  fn try_from(value: Key) -> Result<Self, Self::Error> {
+  fn try_from(value: Key) -> Result<Self> {
     if value.is_dot() {
-      return invalid_index_error("No event has sub fields.");
+      return Err(Dot);
     }
 
     match &*value.name_of() {
@@ -31,26 +27,26 @@ impl TryFrom<Key> for Event {
       "collision"  => Ok(Event::Collision(parse_object_name(value)?)),
       "other"      => Ok(Event::Other(parse_other_event(value)?)),
       "draw"       => Ok(Event::Draw(parse_draw_kind(value)?)),
-      _ => Err(EventParserError::InvalidName)
+      _ => Err(InvalidName)
     }
   }
 }
 
-fn parse_step_kind(value: Key) -> Result<StepKind, EventParserError> {
+fn parse_step_kind(value: Key) -> Result<StepKind> {
   match value.index_of().unwrap() {
     Expression::Str(name) => {
       match &*name {
         "normal" => Ok(StepKind::Normal),
         "begin"  => Ok(StepKind::Begin),
         "end"    => Ok(StepKind::End),
-        _ => invalid_index_error("Unknown step kind")
+        _ => Err(UnknownStepKind)
       }
     }
-    _ => invalid_index_error("Invalid step kind: must be a string")
+    _ => Err(InvalidIndexType(String::from("string")))
   }
 }
 
-fn parse_alarm_kind(value: Key) -> Result<Alarm, EventParserError> {
+fn parse_alarm_kind(value: Key) -> Result<Alarm> {
   match value.index_of().unwrap() {
     Expression::Num(n) => {
       match &*n {
@@ -66,14 +62,14 @@ fn parse_alarm_kind(value: Key) -> Result<Alarm, EventParserError> {
          "9" => Ok(Alarm::Alarm9),
         "10" => Ok(Alarm::Alarm10),
         "11" => Ok(Alarm::Alarm11),
-        _ => invalid_index_error("Invalid alarm number: Must be between 0 and 11")
+        _ => Err(UnknownAlarmKind)
       }
     }
-    _ => invalid_index_error("Invalid alarm number: not a number")
+    _ => Err(InvalidIndexType(String::from("number")))
   }
 }
 
-fn parse_key_code(value: Key) -> Result<KeyCode, EventParserError> {
+fn parse_key_code(value: Key) -> Result<KeyCode> {
   match value.index_of().unwrap() {
     Expression::Str(name) => {
       if name.len() == 1 && name.chars().all(char::is_alphabetic) {
@@ -127,6 +123,7 @@ fn parse_key_code(value: Key) -> Result<KeyCode, EventParserError> {
           "numpad9"      => Ok(KeyCode::NumPad9),
           "multiply"     => Ok(KeyCode::Multiply),
           "divide"       => Ok(KeyCode::Divide),
+          "add"          => Ok(KeyCode::Add),
           "subtract"     => Ok(KeyCode::Subtract),
           "decimal"      => Ok(KeyCode::Decimal),
           "lshift"       => Ok(KeyCode::LeftShift),
@@ -135,15 +132,15 @@ fn parse_key_code(value: Key) -> Result<KeyCode, EventParserError> {
           "rshift"       => Ok(KeyCode::RightShift),
           "rcontrol"     => Ok(KeyCode::RightControl),
           "ralt"         => Ok(KeyCode::RightAlt),
-          _ => invalid_index_error("Invalid key code")
+          _ => Err(UnknownKeyCode)
         }
       }
     }
-    _ => invalid_index_error("Invalid key code: must be a string")
+    _ => Err(InvalidIndexType(String::from("string")))
   }
 }
 
-fn parse_mouse_action(value: Key) -> Result<MouseAction, EventParserError> {
+fn parse_mouse_action(value: Key) -> Result<MouseAction> {
   match value.index_of().unwrap() {
     Expression::Str(name) => {
       match &*name {
@@ -170,14 +167,14 @@ fn parse_mouse_action(value: Key) -> Result<MouseAction, EventParserError> {
         "global_left_release"   => Ok(MouseAction::GlobalLeftRelease),
         "global_right_release"  => Ok(MouseAction::GlobalRightRelease),
         "global_middle_release" => Ok(MouseAction::GlobalMiddleRelease),
-        _ => invalid_index_error("Unknown mouse action")
+        _ => Err(UnknownMouseKind)
       }
     }
-    _ => invalid_index_error("Invalid mouse action: must be a string")
+    _ => Err(InvalidIndexType(String::from("string")))
   }
 }
 
-fn parse_object_name(value: Key) -> Result<ResourceName, EventParserError> {
+fn parse_object_name(value: Key) -> Result<ResourceName> {
   match value.index_of().unwrap() {
     Expression::Name(name) => {
       Ok(ResourceName::new(&["object", &name]))
@@ -191,11 +188,11 @@ fn parse_object_name(value: Key) -> Result<ResourceName, EventParserError> {
       }
     }
 
-    _ => invalid_index_error("Invalid collision object: must be a resource name")
+    _ => Err(InvalidIndexType(String::from("resource name")))
   }
 }
 
-fn parse_other_event(value: Key) -> Result<OtherEvent, EventParserError> {
+fn parse_other_event(value: Key) -> Result<OtherEvent> {
   match value.index_of().unwrap() {
     Expression::Str(name) => {
       match &*name {
@@ -226,14 +223,14 @@ fn parse_other_event(value: Key) -> Result<OtherEvent, EventParserError> {
         "user13"         => Ok(OtherEvent::User13),
         "user14"         => Ok(OtherEvent::User14),
         "user15"         => Ok(OtherEvent::User15),
-        _ => invalid_index_error("Unknown kind of 'other' event")
+        _ => Err(UnknownOtherKind)
       }
     }
-    _ => invalid_index_error("Invalid kind of 'other' event: must be a string")
+    _ => Err(InvalidIndexType(String::from("string")))
   }
 }
 
-fn parse_draw_kind(value: Key) -> Result<DrawKind, EventParserError> {
+fn parse_draw_kind(value: Key) -> Result<DrawKind> {
   match value.index_of().unwrap() {
     Expression::Str(name) => {
       match &*name {
@@ -244,10 +241,10 @@ fn parse_draw_kind(value: Key) -> Result<DrawKind, EventParserError> {
         "gui"       => Ok(DrawKind::Gui),
         "gui_begin" => Ok(DrawKind::GuiBegin),
         "gui_end"   => Ok(DrawKind::GuiEnd),
-        _ => invalid_index_error("Unknown draw kind")
+        _ => Err(UnknownDrawKind)
       }
     }
-    _ => invalid_index_error("Invalid draw kind: must be a string")
+    _ => Err(InvalidIndexType(String::from("string")))
   }
 }
 

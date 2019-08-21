@@ -36,8 +36,8 @@ pub enum MglError {
     options: Vec<String>,
   },
 
-  EventInvalidIndex {
-    message: String,
+  Event {
+    kind: EventErrorKind,
   }
 }
 
@@ -61,7 +61,24 @@ pub enum InvalidFieldKind {
   NotArray(Key),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EventErrorKind {
+  InvalidName,
+  InvalidIndexType(String),
+  Dot,
+  UnknownStepKind,
+  UnknownAlarmKind,
+  UnknownKeyCode,
+  UnknownMouseKind,
+  UnknownOtherKind,
+  UnknownDrawKind,
+}
+
 impl MglError {
+  pub fn event<T>(kind: EventErrorKind) -> Result<T> {
+    Err(MglError::Event { kind })
+  }
+
   pub fn invalid_field<T>(field: &str, kind: InvalidFieldKind) -> Result<T> {
     Err(
       MglError::InvalidField {

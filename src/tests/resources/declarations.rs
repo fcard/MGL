@@ -7,6 +7,7 @@ use crate::resources::sprite::*;
 use crate::resources::sound::*;
 use crate::resources::room::*;
 use crate::resources::script::*;
+use crate::resources::instance::*;
 
 #[test]
 fn test_resources_sprite() {
@@ -63,7 +64,7 @@ fn test_resources_sprite() {
 
 #[test]
 fn test_resources_sound() {
-  let mut s = Sound::new(resource(r#"
+  let s = Sound::new(resource(r#"
     sound s {
       kind: "background"
       data: "sounds/s.wav"
@@ -96,6 +97,34 @@ fn test_resources_sound() {
 }
 
 #[test]
+fn test_instance_sound() {
+  let i = Instance::new(instance(r#"
+    instance i of o {
+      id: 10000
+      x: 20
+      y: 20
+      scale: 0.5
+      rotation: 180.0
+      alpha: 0.5
+      color: 1
+      creation_code: f
+    }
+  "#)).unwrap();
+
+  assert_eq!(i.id, 10000);
+  assert_eq!(i.x, 20);
+  assert_eq!(i.y, 20);
+  assert_eq!(i.scale, 0.5);
+  assert_eq!(i.rotation, 180.0);
+  assert_eq!(i.alpha, 0.5);
+  assert_eq!(i.color, 1);
+  assert_eq!(i.creation_code, Some(ResourceName::new(&["f"])));
+
+  let e = Instance::new(instance("instance e of o { k: 1\n }"));
+  assert_eq!(e, MglError::invalid_field("k",  InvalidFieldKind::NotFound));
+}
+
+#[test]
 fn test_resources_room() {
   let r = Room::new((resource(r#"
     room r {
@@ -108,7 +137,12 @@ fn test_resources_room() {
       clear_display_buffer: true
       color: 0
       tiled: "rooms/r.tmx"
-      instances[0]: obj::inst
+      instances[1]: obj::inst
+
+      instance i of o {
+        x: 20
+        y: 20
+      }
     }
   "#), Vec::new())).unwrap();
 
@@ -121,7 +155,7 @@ fn test_resources_room() {
   assert_eq!(r.clear_display_buffer, true);
   assert_eq!(r.color, 0);
   assert_eq!(r.tiled, Some(PathBuf::from("rooms/r.tmx")));
-  assert_eq!(r.instances[0], InstanceItem::Unresolved(ResourceName::new(&["obj", "inst"])));
+  assert_eq!(r.instances[1], InstanceItem::Unresolved(ResourceName::new(&["obj", "inst"])));
 
   let e = Room::new((resource("room e { k: 1\n }"), Vec::new()));
   assert_eq!(e, MglError::invalid_field("k",  InvalidFieldKind::NotFound));
