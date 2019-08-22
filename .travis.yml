@@ -2,6 +2,8 @@ language: rust
 rust:
   - nightly
 
+dist: bionic
+
 addons:
   apt:
     packages:
@@ -27,12 +29,13 @@ after_success: |
   for file in target/debug/mgl-*; do
     if [ -x "$file" ]; then
       mkdir -p "target/cov/$(basename "$file")"
-      kcov-build/usr/local/bin/kcov                                      \
-        --exclude-pattern=/.cargo,/usr/lib,src/tests,mgl_resource_derive \
-        --exclude-line='unreachable!','  }','#![','pub '                 \
+      kcov-build/usr/local/bin/kcov                     \
+        --include-path=src/                             \
+        --exclude-path=src/tests                        \
+        --exclude-line='unreachable!','  }','#![feat'   \
         --verify "target/cov/$(basename $file)" "$file"
     fi
   done &&
-  bash <(curl -s https://codecov.io/bash) &&
+  bash <(curl -s https://codecov.io/bash) -X gcov &&
   echo "Uploaded code coverage"
 
