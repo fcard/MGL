@@ -17,10 +17,6 @@ pub fn build_script(s: Script) -> String {
   format!("{}", builder.result)
 }
 
-pub fn why_is_this_untracked() {
-  println!("no no no");
-}
-
 fn build_expression(e: &Expression) -> String {
   use crate::ast::BinaryOp::Dot;
   use Expression::*;

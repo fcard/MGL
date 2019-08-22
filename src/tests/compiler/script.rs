@@ -32,7 +32,7 @@ fn test_compiler_script_return() {
 #[test]
 fn test_compiler_script_expressions() {
   let ex = |e: &str| format!("function f() {{return {}\n}}", e);
-//  assert_script_eq(&ex("\"abc\""), "return \"abc\";");
+  assert_script_eq(&ex("\"abc\""), "return \"abc\";");
   assert_script_eq(&ex("0"),       "return 0;");
   assert_script_eq(&ex("true"),    "return true;");
   assert_script_eq(&ex("false"),   "return false;");
