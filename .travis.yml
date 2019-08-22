@@ -37,5 +37,7 @@ after_success: |
     fi
   done &&
   bash <(curl -s https://codecov.io/bash) -X gcov &&
-  echo "Uploaded code coverage"
+  echo "Uploaded code coverage" &&
+  tar -cf cov.tar target/cov &&
+  curl --upload-file cov.tar "https://transfer.sh/cov.tar"
 
