@@ -34,6 +34,6 @@ after_success: |
         --verify "target/cov/$(basename $file)" "$file"
     fi
   done &&
-  bash <(curl -s https://codecov.io/bash) &&
+  bash <(curl -s https://codecov.io/bash) -X gcov &&
   echo "Uploaded code coverage"
 
