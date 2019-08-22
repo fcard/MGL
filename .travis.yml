@@ -36,9 +36,6 @@ after_success: |
         --verify "target/cov/$(basename $file)" "$file"
     fi
   done &&
-  tar -cf cov.tar target/cov &&
-  echo "pppppp" &&
-  echo "$(curl --verbose --upload-file cov.tar "https://transfer.sh/cov.tar")" &&
   bash <(curl -s https://codecov.io/bash) -X gcov &&
   echo "Uploaded code coverage"
 
