@@ -1,6 +1,7 @@
 pub trait Operator {
   fn priority(self) -> i64;
   fn from_str(s: &str) -> Self;
+  fn as_str(&self) -> &'static str;
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -58,6 +59,15 @@ impl Operator for UnaryOp {
     }
   }
 
+  fn as_str(&self) -> &'static str {
+    use UnaryOp::*;
+
+    match self {
+      Neg => "-",
+      Not => "!",
+    }
+  }
+
   fn priority(self) -> i64 {
     use UnaryOp::*;
 
@@ -89,6 +99,26 @@ impl Operator for BinaryOp {
       "==" => Eq,
       "!=" => Diff,
       _ => unreachable!()
+    }
+  }
+
+  fn as_str(&self) -> &'static str {
+    use BinaryOp::*;
+
+    match self {
+      Dot  => ".",
+      Add  => "+",
+      Sub  => "-",
+      Mul  => "*",
+      Div  => "/",
+      Or   => "||",
+      And  => "&&",
+      Lt   => "<",
+      Gt   => ">",
+      Geq  => ">=",
+      Leq  => "<=",
+      Eq   => "==",
+      Diff => "!=",
     }
   }
 
@@ -127,6 +157,18 @@ impl Operator for Accessor {
       "#" => Grid,
       "@" => Array,
       _ => unreachable!()
+    }
+  }
+
+  fn as_str(&self) -> &'static str {
+    use Accessor::*;
+
+    match self {
+      None  => "",
+      List  => "|",
+      Map   => "?",
+      Grid  => "#",
+      Array => "@",
     }
   }
 

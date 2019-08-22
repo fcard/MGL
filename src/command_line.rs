@@ -12,6 +12,7 @@ pub enum Action {
   Compile,
   ShowAst(bool),
   Project(bool),
+  Scripts,
 }
 
 
@@ -62,6 +63,10 @@ fn generate_app<'a, 'b>() -> App<'a, 'b> {
     .subcommand(SubCommand::with_name("project")
                 .about("Show final project output as text")
                 .arg(pretty))
+
+    .subcommand(SubCommand::with_name("scripts")
+                .about("compile just the scripts and print them"))
+
 }
 
 
@@ -81,6 +86,7 @@ fn interpret_subcommand(matches: &ArgMatches) -> Action {
     ("compile", _) => Action::Compile,
     ("project", m) => Action::Project(interpret_pretty(&m.unwrap())),
     ("ast",     m) => Action::ShowAst(interpret_pretty(&m.unwrap())),
+    ("scripts", _) => Action::Scripts,
     _ => unreachable!()
   }
 }
