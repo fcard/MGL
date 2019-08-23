@@ -7,7 +7,7 @@ pub use crate::error::{Result, MglError, InvalidFieldKind};
 // Traits to implement
 
 pub trait Resource<T: ResourceAst>: Sized {
-  fn parse_key_value(&mut self, source: &T, key: Key, value: Expression) -> Result<()>;
+  fn parse_key_value(&mut self, source: &T, key: &Key, value: &Expression) -> Result<()>;
 }
 
 pub trait ResourceDefault<T: ResourceAst>: Sized {
@@ -18,9 +18,9 @@ pub trait ResourceDefault<T: ResourceAst>: Sized {
 
 pub trait FromExpression = TryFrom<Expression, Error=MglError>;
 
-pub fn parse_field_default<T: FromExpression>(key: Key, expr: Expression) -> Result<T> {
+pub fn parse_field_default<T: FromExpression>(key: &Key, expr: &Expression) -> Result<T> {
   let field = &key.name_of();
-  match T::try_from(expr) {
+  match T::try_from(expr.clone()) {
     Ok(value) => Ok(value),
 
     Err(MglError::ConvertExpression { value, into_type }) => {
@@ -65,7 +65,7 @@ impl<S: ResourceDefault<T> + Resource<T>, T: ResourceAst> ResourceCreate<T> for 
   fn new(source: T) -> Result<Self> {
     let mut resource = Self::default(&source)?;
     for KeyValue { key, value } in source.key_values() {
-      resource.parse_key_value(&source, key.clone(), value.clone())?;
+      resource.parse_key_value(&source, key, value)?;
     }
     Ok(resource)
   }
@@ -76,23 +76,23 @@ impl<S: ResourceDefault<T> + Resource<T>, T: ResourceAst> ResourceCreate<T> for 
 pub struct KeyInspector;
 
 impl KeyInspector {
-  pub fn assert_field_has_no_index(field: &str, key: Key) -> Result<()> {
+  pub fn assert_field_has_no_index(field: &str, key: &Key) -> Result<()> {
     match key {
-      Key::Name(_) => Ok(()),
+      &Key::Name(_) => Ok(()),
       _ => MglError::invalid_field(field, InvalidFieldKind::NotSimple(key.clone()))
     }
   }
 
-  pub fn get_array_index(field: &str, key: Key) -> Result<usize> {
+  pub fn get_array_index(field: &str, key: &Key) -> Result<usize> {
     match key.leftmost_index_of() {
-      Some(a) => Ok(parse_field_default(key.clone(), a.clone())?),
+      Some(a) => Ok(parse_field_default(key, &a)?),
       _ => MglError::invalid_field(field, InvalidFieldKind::NotArray(key.clone()))
     }
   }
 
-  pub fn get_sub_field_key(field: &str, key: Key) -> Result<Key> {
+  pub fn get_sub_field_key(field: &str, key: &Key) -> Result<Key> {
     match key {
-      Key::Dot(_, box sf) => Ok(sf),
+      Key::Dot(_, box sf) => Ok(sf.clone()),
       _ => MglError::invalid_field(field, InvalidFieldKind::NotSubResource(key.clone()))
     }
   }

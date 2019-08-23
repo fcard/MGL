@@ -44,7 +44,7 @@ pub fn parse_function(pair: Pair) -> FunctionDeclaration {
   let args = parts.next().unwrap().into_inner().map(|p| p.as_str()).collect::<Vec<_>>();
   let body = parts.next().unwrap();
 
-  FunctionDeclaration::new(name, &args, parse_body(body))
+  FunctionDeclaration::new(name, &args, parse_statement(body))
 }
 
 

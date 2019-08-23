@@ -3,8 +3,12 @@ use crate::tests::utility::*;
 
 macro assert_parse_expr {
   ($code: expr, $ast: expr) => {
-    assert_eq!(expr($code), $ast)
+    assert_eq!(*expr($code).content, $ast)
   }
+}
+
+fn name(s: &str) -> Ast<Expression> {
+  Ast::new(Expression::name(s))
 }
 
 
@@ -55,24 +59,24 @@ fn test_expression_resource_2() {
 
 #[test]
 fn test_expression_parentheses() {
-  assert_parse_expr!("(a)", Expression::parentheses(Expression::name("a")))
+  assert_parse_expr!("(a)", Expression::parentheses(name("a")))
 }
 
 #[test]
 fn test_expression_unary_not() {
-  assert_parse_expr!("!a", Expression::unary_op(UnaryOp::Not, Expression::name("a")))
+  assert_parse_expr!("!a", Expression::unary_op(UnaryOp::Not, name("a")))
 }
 
 #[test]
 fn test_expression_unary_neg() {
-  assert_parse_expr!("-a", Expression::unary_op(UnaryOp::Neg, Expression::name("a")))
+  assert_parse_expr!("-a", Expression::unary_op(UnaryOp::Neg, name("a")))
 }
 
 #[test]
 fn test_expression_binary() {
   use BinaryOp::*;
-  let a = Expression::name("a");
-  let b = Expression::name("b");
+  let a = name("a");
+  let b = name("b");
 
   for (code, op) in
     [("a.b"   , Dot), ("a .  b", Dot),
@@ -89,20 +93,20 @@ fn test_expression_ternary() {
   assert_parse_expr!(
     "a ? b : c",
     Expression::ternary_op(
-      Expression::name("a"),
-      Expression::name("b"),
-      Expression::name("c"),
+      name("a"),
+      name("b"),
+      name("c"),
     )
   )
 }
 
 #[test]
 fn test_expression_call() {
-  let f = Expression::name("f");
-  let a = Expression::name("a");
-  let b = Expression::name("b");
+  let f = name("f");
+  let a = name("a");
+  let b = name("b");
 
-  let call = |args: Vec<&Expression>| {
+  let call = |args: Vec<&Ast<Expression>>| {
     Expression::call(f.clone(), &args.clone_all())
   };
 
@@ -115,11 +119,11 @@ fn test_expression_call() {
 fn test_expression_indexing() {
   use Accessor::*;
 
-  let a = Expression::name("a");
-  let i = Expression::name("i");
-  let j = Expression::name("j");
+  let a = name("a");
+  let i = name("i");
+  let j = name("j");
 
-  let indexing = |acc, args: Vec<&Expression>| {
+  let indexing = |acc, args: Vec<&Ast<Expression>>| {
     Expression::indexing(a.clone(), acc, &args.clone_all())
   };
 
@@ -143,57 +147,57 @@ fn test_expression_multiple_ops() {
   let d = expr("d");
   let fx = expr("f(x)");
 
-  let uny = |op, x: &Expression| {
-    Expression::unary_op(op, (*x).clone())
+  let uny = |op, x: &Ast<Expression>| {
+    Ast::new(Expression::unary_op(op, (*x).clone()))
   };
 
-  let bin = |op, x: &Expression, y: &Expression| {
-    Expression::binary_op(op, (*x).clone(), (*y).clone())
+  let bin = |op, x: &Ast<Expression>, y: &Ast<Expression>| {
+    Ast::new(Expression::binary_op(op, (*x).clone(), (*y).clone()))
   };
 
-  let ter = |x: &Expression, y: &Expression, z: &Expression| {
-    Expression::ternary_op((*x).clone(), (*y).clone(), (*z).clone())
+  let ter = |x: &Ast<Expression>, y: &Ast<Expression>, z: &Ast<Expression>| {
+    Ast::new(Expression::ternary_op((*x).clone(), (*y).clone(), (*z).clone()))
   };
 
-  let par = |e: &Expression| {
-    Expression::parentheses((*e).clone())
+  let par = |e: &Ast<Expression>| {
+    Ast::new(Expression::parentheses((*e).clone()))
   };
 
-  assert_parse_expr!("a + b + c", bin("+", &bin("+", &a, &b), &c));
-  assert_parse_expr!("a - b - c", bin("-", &bin("-", &a, &b), &c));
-  assert_parse_expr!("a * b + c", bin("+", &bin("*", &a, &b), &c));
-  assert_parse_expr!("a + b * c", bin("+", &a, &bin("*", &b, &c)));
-  assert_parse_expr!("a + b / c", bin("+", &a, &bin("/", &b, &c)));
+  assert_parse_expr!("a + b + c", *bin("+", &bin("+", &a, &b), &c));
+  assert_parse_expr!("a - b - c", *bin("-", &bin("-", &a, &b), &c));
+  assert_parse_expr!("a * b + c", *bin("+", &bin("*", &a, &b), &c));
+  assert_parse_expr!("a + b * c", *bin("+", &a, &bin("*", &b, &c)));
+  assert_parse_expr!("a + b / c", *bin("+", &a, &bin("/", &b, &c)));
 
-  assert_parse_expr!("a > b  || c < d",  bin("||", &bin(">", &a, &b), &bin("<", &c, &d)));
-  assert_parse_expr!("a != b && c == d", bin("&&", &bin("!=", &a, &b), &bin("==", &c, &d)));
-  assert_parse_expr!("a >= b && c <= d", bin("&&", &bin(">=", &a, &b), &bin("<=", &c, &d)));
+  assert_parse_expr!("a > b  || c < d",  *bin("||", &bin(">", &a, &b), &bin("<", &c, &d)));
+  assert_parse_expr!("a != b && c == d", *bin("&&", &bin("!=", &a, &b), &bin("==", &c, &d)));
+  assert_parse_expr!("a >= b && c <= d", *bin("&&", &bin(">=", &a, &b), &bin("<=", &c, &d)));
 
-  assert_parse_expr!("a + f(x)", bin("+", &a, &fx));
-  assert_parse_expr!("f(x) + a", bin("+", &fx, &a));
+  assert_parse_expr!("a + f(x)", *bin("+", &a, &fx));
+  assert_parse_expr!("f(x) + a", *bin("+", &fx, &a));
 
-  assert_parse_expr!("!a.b",   uny("!", &bin(".", &a, &b)));
-  assert_parse_expr!("!a + b", bin("+", &uny("!", &a), &b));
-  assert_parse_expr!("a + !b", bin("+", &a, &uny("!", &b)));
-  assert_parse_expr!("-a + b", bin("+", &uny("-", &a), &b));
-  assert_parse_expr!("a + -b", bin("+", &a, &uny("-", &b)));
+  assert_parse_expr!("!a.b",   *uny("!", &bin(".", &a, &b)));
+  assert_parse_expr!("!a + b", *bin("+", &uny("!", &a), &b));
+  assert_parse_expr!("a + !b", *bin("+", &a, &uny("!", &b)));
+  assert_parse_expr!("-a + b", *bin("+", &uny("-", &a), &b));
+  assert_parse_expr!("a + -b", *bin("+", &a, &uny("-", &b)));
 
-  assert_parse_expr!("(a + b) * c", bin("*", &par(&bin("+", &a, &b)), &c));
-  assert_parse_expr!("a + (b * c)", bin("+", &a, &par(&bin("*", &b, &c))));
+  assert_parse_expr!("(a + b) * c", *bin("*", &par(&bin("+", &a, &b)), &c));
+  assert_parse_expr!("a + (b * c)", *bin("+", &a, &par(&bin("*", &b, &c))));
 
   assert_parse_expr!(
     "a + b * c + d",
-    bin("+", &bin("+", &a, &bin("*", &b, &c)), &d)
+    *bin("+", &bin("+", &a, &bin("*", &b, &c)), &d)
   );
 
   assert_parse_expr!(
     "a * b + c * d",
-    bin("+", &bin("*", &a, &b), &bin("*", &c, &d))
+    *bin("+", &bin("*", &a, &b), &bin("*", &c, &d))
   );
 
-  assert_parse_expr!("!a ? b : c", ter(&uny("!", &a), &b, &c));
-  assert_parse_expr!("!(a ? b : c)", uny("!", &par(&ter(&a, &b, &c))));
+  assert_parse_expr!("!a ? b : c", *ter(&uny("!", &a), &b, &c));
+  assert_parse_expr!("!(a ? b : c)", *uny("!", &par(&ter(&a, &b, &c))));
 
-  assert_parse_expr!("a + b ? c : d", ter(&bin("+", &a, &b), &c, &d));
-  assert_parse_expr!("a + (b ? c : d)", bin("+", &a, &par(&ter(&b, &c, &d))));
+  assert_parse_expr!("a + b ? c : d", *ter(&bin("+", &a, &b), &c, &d));
+  assert_parse_expr!("a + (b ? c : d)", *bin("+", &a, &par(&ter(&b, &c, &d))));
 }

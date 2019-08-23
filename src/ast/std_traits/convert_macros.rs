@@ -3,11 +3,19 @@ use crate::error::*;
 use std::convert::TryFrom;
 
 pub macro try_from_common($T: ty, |$expr: ident| $func: expr) {
+  impl TryFrom<Ast<Expression>> for $T {
+    type Error = MglError;
+
+    fn try_from($expr: Ast<Expression>) -> Result<Self> {
+      $func
+    }
+  }
+
   impl TryFrom<Expression> for $T {
     type Error = MglError;
 
-    fn try_from($expr: Expression) -> Result<Self> {
-      $func
+    fn try_from(expr: Expression) -> Result<Self> {
+      <$T>::try_from(Ast::new(expr))
     }
   }
 }
@@ -16,7 +24,7 @@ pub macro implement_match_try_from {
   ($($T: ty { $($p: pat => $value: expr),* }),*) => {
     $(
       try_from_common!($T, |expr| {
-        match expr {
+        match *expr.content {
           $($p => Ok($value)),*,
           _ => MglError::convert_expression(expr, stringify!($T))
         }
@@ -30,7 +38,7 @@ pub macro implement_try_from_for_numbers($($T: ty),+) {
     try_from_common!($T, |expr| {
       let value_type = format!("number ({})", stringify!($T));
 
-      match &expr {
+      match &*expr {
         &Expression::Num(ref n) => {
           match n.parse() {
             Ok(n)  => Ok(n),

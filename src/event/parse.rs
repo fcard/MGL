@@ -33,9 +33,9 @@ impl TryFrom<Key> for Event {
 }
 
 fn parse_step_kind(value: Key) -> Result<StepKind> {
-  match value.index_of().unwrap() {
+  match value.index_of().unwrap().as_ref() {
     Expression::Str(name) => {
-      match &*name {
+      match name.as_ref() {
         "normal" => Ok(StepKind::Normal),
         "begin"  => Ok(StepKind::Begin),
         "end"    => Ok(StepKind::End),
@@ -47,9 +47,9 @@ fn parse_step_kind(value: Key) -> Result<StepKind> {
 }
 
 fn parse_alarm_kind(value: Key) -> Result<Alarm> {
-  match value.index_of().unwrap() {
+  match value.index_of().unwrap().as_ref() {
     Expression::Num(n) => {
-      match &*n {
+      match n.as_ref() {
          "0" => Ok(Alarm::Alarm0),
          "1" => Ok(Alarm::Alarm1),
          "2" => Ok(Alarm::Alarm2),
@@ -70,13 +70,13 @@ fn parse_alarm_kind(value: Key) -> Result<Alarm> {
 }
 
 fn parse_key_code(value: Key) -> Result<KeyCode> {
-  match value.index_of().unwrap() {
+  match value.index_of().unwrap().as_ref() {
     Expression::Str(name) => {
       if name.len() == 1 && name.chars().all(char::is_alphabetic) {
         Ok(KeyCode::Character(name.chars().next().unwrap()))
 
       } else {
-        match &*name {
+        match name.as_ref() {
           "no_key"       => Ok(KeyCode::NoKey),
           "any_key"      => Ok(KeyCode::AnyKey),
           "left"         => Ok(KeyCode::Left),
@@ -141,9 +141,9 @@ fn parse_key_code(value: Key) -> Result<KeyCode> {
 }
 
 fn parse_mouse_action(value: Key) -> Result<MouseAction> {
-  match value.index_of().unwrap() {
+  match value.index_of().unwrap().as_ref() {
     Expression::Str(name) => {
-      match &*name {
+      match name.as_ref() {
         "no_button"             => Ok(MouseAction::NoButton),
         "left_button"           => Ok(MouseAction::LeftButton),
         "right_button"          => Ok(MouseAction::RightButton),
@@ -175,14 +175,15 @@ fn parse_mouse_action(value: Key) -> Result<MouseAction> {
 }
 
 fn parse_object_name(value: Key) -> Result<ResourceName> {
-  match value.index_of().unwrap() {
+  match value.index_of().unwrap().as_ref() {
     Expression::Name(name) => {
       Ok(ResourceName::new(&["object", &name]))
     }
 
     Expression::Resource(name) => {
       if name.top_module_is("object") {
-        Ok(name)
+        Ok(name.clone())
+
       } else {
         Ok(ResourceName::InModule(String::from("object"), box name.clone()))
       }
@@ -193,9 +194,9 @@ fn parse_object_name(value: Key) -> Result<ResourceName> {
 }
 
 fn parse_other_event(value: Key) -> Result<OtherEvent> {
-  match value.index_of().unwrap() {
+  match value.index_of().unwrap().as_ref() {
     Expression::Str(name) => {
-      match &*name {
+      match name.as_ref() {
         "outside"        => Ok(OtherEvent::RoomOutside),
         "boundary"       => Ok(OtherEvent::RoomBoundary),
         "game_start"     => Ok(OtherEvent::GameStart),
@@ -231,9 +232,9 @@ fn parse_other_event(value: Key) -> Result<OtherEvent> {
 }
 
 fn parse_draw_kind(value: Key) -> Result<DrawKind> {
-  match value.index_of().unwrap() {
+  match value.index_of().unwrap().as_ref() {
     Expression::Str(name) => {
-      match &*name {
+      match name.as_ref() {
         "begin"     => Ok(DrawKind::Begin),
         "end"       => Ok(DrawKind::End),
         "pre"       => Ok(DrawKind::Pre),

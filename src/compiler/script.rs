@@ -49,11 +49,11 @@ fn build_resource_name(name: &ResourceName) -> String {
 }
 
 
-fn join_arguments(v: &Vec<Expression>) -> String {
-  v.iter().map(build_expression).collect::<Vec<_>>().join(", ")
+fn join_arguments<T: AsRef<Expression>>(v: &Vec<T>) -> String {
+  v.iter().map(|e| build_expression(e.as_ref())).collect::<Vec<_>>().join(", ")
 }
 
-fn build_call(caller: &Expression, args: &Vec<Expression>) -> String {
+fn build_call<T: AsRef<Expression>>(caller: &Expression, args: &Vec<T>) -> String {
   let mut result = build_expression(caller);
 
   result.push('(');
@@ -63,7 +63,7 @@ fn build_call(caller: &Expression, args: &Vec<Expression>) -> String {
   result
 }
 
-fn build_indexing(v: &Expression, op: Accessor, keys: &Vec<Expression>) -> String {
+fn build_indexing<T: AsRef<Expression>>(v: &Expression, op: Accessor, keys: &Vec<T>) -> String {
   let mut result = build_expression(v);
 
   result.push('[');

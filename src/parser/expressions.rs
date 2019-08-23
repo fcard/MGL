@@ -1,19 +1,22 @@
 use crate::ast::*;
+use crate::ast::wrapper::*;
 use crate::ast::precedence::*;
 use crate::parser::grammar::*;
 
-pub fn parse_expression(top_pair: Pair) -> Expression {
+pub fn parse_expression(top_pair: Pair) -> Ast<Expression> {
   let mut expression = None;
 
-  for pair in top_pair.into_inner() {
-    expression = Some(
+  for pair in top_pair.clone().into_inner() {
+    let pair_clone = pair.clone();
+
+    expression = Some(Ast::new(
       match pair.as_rule() {
         Rule::name    => Expression::name(pair.as_str()),
         Rule::string  => Expression::string(pair.as_str()),
         Rule::number  => Expression::num(pair.as_str()),
         Rule::boolean => Expression::boolean(pair.as_str().parse().unwrap()),
 
-        Rule::variable_name => parse_expression(pair),
+        Rule::variable_name => *parse_expression(pair).content,
         Rule::parentheses   => Expression::parentheses(parse_expression(pair)),
 
         Rule::resource => {
@@ -25,14 +28,14 @@ pub fn parse_expression(top_pair: Pair) -> Expression {
           let mut parts = pair.into_inner();
           let operator = parts.next().unwrap().as_str();
           let operand  = parse_expression(parts.next().unwrap());
-          Expression::unary_op(operator, operand).fix_precedence()
+          Expression::unary_op(operator, operand)
         }
 
         Rule::binary_op => {
           let mut parts = pair.into_inner();
           let op = parts.next().unwrap().as_str();
           let right = parse_expression(parts.next().unwrap());
-          Expression::binary_op(op, expression.unwrap(), right).fix_precedence()
+          Expression::binary_op(op, expression.unwrap(), right)
         }
 
         Rule::ternary_op => {
@@ -55,10 +58,10 @@ pub fn parse_expression(top_pair: Pair) -> Expression {
           Expression::indexing(expression.unwrap(), acc, &args)
         }
 
-        r => panic!("{:?}", r)
+        _ => unreachable!()
       }
-    );
+    ).pos(pair_clone));
   }
-  expression.unwrap()
+  expression.unwrap().fix_precedence()
 }
 

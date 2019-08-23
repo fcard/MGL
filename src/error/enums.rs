@@ -2,6 +2,8 @@ use crate::error::Result;
 use crate::ast::*;
 use crate::parser::grammar::*;
 
+type Expr = Ast<Expression>;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MglError {
   Parser {
@@ -14,7 +16,7 @@ pub enum MglError {
   },
 
   WrongFieldType {
-    value: Expression,
+    value: Expr,
     field_name: String,
     value_type: String,
   },
@@ -25,7 +27,7 @@ pub enum MglError {
   },
 
   ConvertExpression {
-    value: Expression,
+    value: Expr,
     into_type: String,
   },
 
@@ -88,7 +90,7 @@ impl MglError {
     )
   }
 
-  pub fn wrong_field_type<T>(value: Expression, field_name: &str, value_type: &str) -> Result<T> {
+  pub fn wrong_field_type<T>(value: Expr, field_name: &str, value_type: &str) -> Result<T> {
     Err(
       MglError::WrongFieldType {
         value,
@@ -98,7 +100,7 @@ impl MglError {
     )
   }
 
-  pub fn convert_expression<T>(value: Expression, into_type: &str) -> Result<T> {
+  pub fn convert_expression<T>(value: Expr, into_type: &str) -> Result<T> {
     Err(
       MglError::ConvertExpression {
         value,

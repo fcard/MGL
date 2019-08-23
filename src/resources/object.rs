@@ -28,7 +28,7 @@ impl Object {
         }
 
         Err(EventErrorKind::InvalidName) => {
-          object.parse_key_value(&declaration, key.clone(), value.clone())?;
+          object.parse_key_value(&declaration, key, value)?;
         }
 
         Err(e) => {
@@ -41,13 +41,13 @@ impl Object {
   }
 }
 
-fn parse_event_value(key: &Key, expr: &Expression) -> Result<ResourceName> {
-  match expr {
-    Expression::Name(name) => {
-      Ok(ResourceName::new(&["script", &name]))
+fn parse_event_value(key: &Key, expr: &Ast<Expression>) -> Result<ResourceName> {
+  match expr.as_ref() {
+    &Expression::Name(ref name) => {
+      Ok(ResourceName::new(&["script", &*name]))
     }
 
-    Expression::Resource(resource_name) => {
+    &Expression::Resource(ref resource_name) => {
       if resource_name.top_module_is("script") {
         Ok(resource_name.clone())
       } else {

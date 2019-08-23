@@ -2,53 +2,57 @@ use crate::ast::*;
 use crate::parser::grammar::*;
 use crate::parser::expressions::*;
 
-pub fn parse_statement(pair: Pair) -> Statement {
-  match pair.as_rule() {
-    Rule::return_statement => {
-      Statement::return_op(parse_expression(pair))
-    }
+pub fn parse_statement(pair: Pair) -> Ast<Statement> {
+  let pair_clone = pair.clone();
 
-    Rule::statement_call => {
-      Statement::call(parse_expression(pair))
-    }
+  Ast::new(
+    match pair.as_rule() {
+      Rule::return_statement => {
+        Statement::return_op(parse_expression(pair))
+      }
 
-    Rule::body => {
-      parse_body(pair)
-    }
+      Rule::statement_call => {
+        Statement::call(parse_expression(pair))
+      }
 
-    Rule::with_statement => {
-      parse_with(pair)
-    }
+      Rule::body => {
+        parse_body(pair)
+      }
 
-    Rule::if_statement => {
-      parse_if(pair)
-    }
+      Rule::with_statement => {
+        parse_with(pair)
+      }
 
-    Rule::while_statement => {
-      parse_while(pair)
-    }
+      Rule::if_statement => {
+        parse_if(pair)
+      }
 
-    Rule::for_statement => {
-      parse_for(pair)
-    }
+      Rule::while_statement => {
+        parse_while(pair)
+      }
 
-    Rule::assignment => {
-      parse_assignment(pair)
-    }
+      Rule::for_statement => {
+        parse_for(pair)
+      }
 
-    Rule::var => {
-      parse_var(pair)
-    }
+      Rule::assignment => {
+        parse_assignment(pair)
+      }
 
-    _ => unreachable!()
-  }
+      Rule::var => {
+        parse_var(pair)
+      }
+
+      _ => unreachable!()
+    }
+  ).pos(pair_clone)
 }
 
 
-pub fn parse_with(if_pair: Pair) -> Statement {
-  let mut parts = if_pair.into_inner();
+pub fn parse_with(with_pair: Pair) -> Statement {
+  let mut parts = with_pair.into_inner();
   let expr = parse_expression(parts.next().unwrap());
-  let body = parse_body(parts.next().unwrap());
+  let body = parse_statement(parts.next().unwrap());
   Statement::with(expr, body)
 }
 
@@ -56,8 +60,8 @@ pub fn parse_with(if_pair: Pair) -> Statement {
 pub fn parse_if(if_pair: Pair) -> Statement {
   let mut parts = if_pair.into_inner();
   let cond = parse_expression(parts.next().unwrap());
-  let body = parse_body(parts.next().unwrap());
-  let or_else = parts.next().map(parse_body);
+  let body = parse_statement(parts.next().unwrap());
+  let or_else = parts.next().map(parse_statement);
   Statement::if_op(cond, body, or_else)
 }
 
@@ -65,7 +69,7 @@ pub fn parse_if(if_pair: Pair) -> Statement {
 pub fn parse_while(while_pair: Pair) -> Statement {
   let mut parts = while_pair.into_inner();
   let cond = parse_expression(parts.next().unwrap());
-  let body = parse_body(parts.next().unwrap());
+  let body = parse_statement(parts.next().unwrap());
   Statement::while_op(cond, body)
 }
 
@@ -74,7 +78,7 @@ pub fn parse_for(for_pair: Pair) -> Statement {
   let mut parts = for_pair.into_inner();
   let name  = parts.next().unwrap().as_str();
   let range = parse_for_range(parts.next().unwrap());
-  let body  = parse_body(parts.next().unwrap());
+  let body  = parse_statement(parts.next().unwrap());
   Statement::for_op(name, range, body)
 }
 
