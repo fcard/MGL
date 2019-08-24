@@ -1,8 +1,7 @@
-use crate::ast::wrapper::Ast;
+use crate::ast::info::AstDebugInfo;
 use crate::ast::operators::*;
 
-type Expr = Ast<Expression>;
-pub trait ExprRef = AsRef<Expression>;
+pub type IExpr = AstDebugInfo<Expression>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression {
@@ -11,12 +10,12 @@ pub enum Expression {
   Bool(bool),
   Name(String),
   Resource(ResourceName),
-  Parentheses(Expr),
-  UnaryOp(UnaryOp, Expr),
-  BinaryOp(BinaryOp, Expr, Expr),
-  TernaryOp(Expr, Expr, Expr),
-  Call(Expr, Vec<Expr>),
-  Indexing(Expr, Accessor, Vec<Expr>),
+  Parentheses(IExpr),
+  UnaryOp(UnaryOp, IExpr),
+  BinaryOp(BinaryOp, IExpr, IExpr),
+  TernaryOp(IExpr, IExpr, IExpr),
+  Call(IExpr, Vec<IExpr>),
+  Indexing(IExpr, Accessor, Vec<IExpr>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -44,7 +43,7 @@ impl Expression {
     Expression::Name(String::from(s))
   }
 
-  pub fn parentheses(e: Expr) -> Self {
+  pub fn parentheses(e: IExpr) -> Self {
     Expression::Parentheses(e)
   }
 
@@ -52,23 +51,23 @@ impl Expression {
     Expression::Resource(ResourceName::new(names))
   }
 
-  pub fn unary_op<T: Into<UnaryOp>>(op: T, e: Expr) -> Self {
+  pub fn unary_op<T: Into<UnaryOp>>(op: T, e: IExpr) -> Self {
     Expression::UnaryOp(op.into(), e)
   }
 
-  pub fn binary_op<T: Into<BinaryOp>>(op: T, a: Expr, b: Expr) -> Self {
+  pub fn binary_op<T: Into<BinaryOp>>(op: T, a: IExpr, b: IExpr) -> Self {
     Expression::BinaryOp(op.into(), a, b)
   }
 
-  pub fn ternary_op(condition: Expr, a: Expr, b: Expr) -> Self {
+  pub fn ternary_op(condition: IExpr, a: IExpr, b: IExpr) -> Self {
     Expression::TernaryOp(condition, a, b)
   }
 
-  pub fn call(caller: Expr, args: &[Expr]) -> Self {
+  pub fn call(caller: IExpr, args: &[IExpr]) -> Self {
     Expression::Call(caller, Vec::from(args))
   }
 
-  pub fn indexing<T: Into<Accessor>>(value: Expr, op: T, keys: &[Expr]) -> Self {
+  pub fn indexing<T: Into<Accessor>>(value: IExpr, op: T, keys: &[IExpr]) -> Self {
     Expression::Indexing(value, op.into(), Vec::from(keys))
   }
 }

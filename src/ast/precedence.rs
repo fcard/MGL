@@ -3,13 +3,11 @@
 
 use crate::ast::*;
 
-type AExpr = Ast<Expression>;
-
 pub trait FixPrecedence {
   fn fix_precedence(self) -> Self;
 }
 
-impl FixPrecedence for Ast<Expression> {
+impl FixPrecedence for IExpr {
   fn fix_precedence(self) -> Self {
     use Expression::*;
 
@@ -28,7 +26,7 @@ impl FixPrecedence for Ast<Expression> {
 }
 
 
-pub fn fix_unary_precedence(ast: AExpr, op: UnaryOp, e: AExpr) -> AExpr {
+pub fn fix_unary_precedence(ast: IExpr, op: UnaryOp, e: IExpr) -> IExpr {
   use Expression::*;
 
   match *e.content.clone() {
@@ -52,7 +50,7 @@ pub fn fix_unary_precedence(ast: AExpr, op: UnaryOp, e: AExpr) -> AExpr {
 }
 
 
-pub fn fix_binary_precedence(ast: AExpr, op: BinaryOp, left: AExpr, right: AExpr) -> AExpr {
+pub fn fix_binary_precedence(ast: IExpr, op: BinaryOp, left: IExpr, right: IExpr) -> IExpr {
   use Expression::*;
 
   match *right.content.clone() {

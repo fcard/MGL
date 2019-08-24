@@ -41,7 +41,7 @@ impl Object {
   }
 }
 
-fn parse_event_value(key: &Key, expr: &Ast<Expression>) -> Result<ResourceName> {
+fn parse_event_value(key: &Key, expr: &IExpr) -> Result<ResourceName> {
   match expr.as_ref() {
     &Expression::Name(ref name) => {
       Ok(ResourceName::new(&["script", &*name]))

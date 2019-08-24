@@ -3,7 +3,7 @@ use crate::parser::context::Ctx;
 use std::path::PathBuf;
 
 #[derive(Clone, Eq)]
-pub struct Ast<T> {
+pub struct AstDebugInfo<T> {
   pub content: Box<T>,
   pub line_start: usize,
   pub line_end: usize,
@@ -12,9 +12,9 @@ pub struct Ast<T> {
   pub file: PathBuf,
 }
 
-impl<T: Clone> Ast<T> {
+impl<T: Clone> AstDebugInfo<T> {
   pub fn new(content: T) -> Self {
-    Ast {
+    AstDebugInfo {
       content: box content,
       line_start: 0,
       line_end: 0,

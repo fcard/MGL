@@ -61,8 +61,8 @@ implement_from_str! {
     parse_code(s)
   },
 
-  {T: FromStr<Err=MglError> + Clone} Ast<T> => {
-    Ok(Ast::new(T::from_str(s)?))
+  {T: FromStr<Err=MglError> + Clone} AstDebugInfo<T> => {
+    Ok(AstDebugInfo::new(T::from_str(s)?))
   }
 }
 

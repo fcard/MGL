@@ -7,8 +7,8 @@ macro assert_parse_expr {
   }
 }
 
-fn name(s: &str) -> Ast<Expression> {
-  Ast::new(Expression::name(s))
+fn name(s: &str) -> IExpr {
+  IExpr::new(Expression::name(s))
 }
 
 
@@ -106,7 +106,7 @@ fn test_expression_call() {
   let a = name("a");
   let b = name("b");
 
-  let call = |args: Vec<&Ast<Expression>>| {
+  let call = |args: Vec<&IExpr>| {
     Expression::call(f.clone(), &args.clone_all())
   };
 
@@ -123,7 +123,7 @@ fn test_expression_indexing() {
   let i = name("i");
   let j = name("j");
 
-  let indexing = |acc, args: Vec<&Ast<Expression>>| {
+  let indexing = |acc, args: Vec<&IExpr>| {
     Expression::indexing(a.clone(), acc, &args.clone_all())
   };
 
@@ -147,20 +147,20 @@ fn test_expression_multiple_ops() {
   let d = expr("d");
   let fx = expr("f(x)");
 
-  let uny = |op, x: &Ast<Expression>| {
-    Ast::new(Expression::unary_op(op, (*x).clone()))
+  let uny = |op, x: &IExpr| {
+    IExpr::new(Expression::unary_op(op, (*x).clone()))
   };
 
-  let bin = |op, x: &Ast<Expression>, y: &Ast<Expression>| {
-    Ast::new(Expression::binary_op(op, (*x).clone(), (*y).clone()))
+  let bin = |op, x: &IExpr, y: &IExpr| {
+    IExpr::new(Expression::binary_op(op, (*x).clone(), (*y).clone()))
   };
 
-  let ter = |x: &Ast<Expression>, y: &Ast<Expression>, z: &Ast<Expression>| {
-    Ast::new(Expression::ternary_op((*x).clone(), (*y).clone(), (*z).clone()))
+  let ter = |x: &IExpr, y: &IExpr, z: &IExpr| {
+    IExpr::new(Expression::ternary_op((*x).clone(), (*y).clone(), (*z).clone()))
   };
 
-  let par = |e: &Ast<Expression>| {
-    Ast::new(Expression::parentheses((*e).clone()))
+  let par = |e: &IExpr| {
+    IExpr::new(Expression::parentheses((*e).clone()))
   };
 
   assert_parse_expr!("a + b + c", *bin("+", &bin("+", &a, &b), &c));

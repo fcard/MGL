@@ -3,10 +3,10 @@ use crate::error::*;
 use std::convert::TryFrom;
 
 pub macro try_from_common($T: ty, |$expr: ident| $func: expr) {
-  impl TryFrom<Ast<Expression>> for $T {
+  impl TryFrom<IExpr> for $T {
     type Error = MglError;
 
-    fn try_from($expr: Ast<Expression>) -> Result<Self> {
+    fn try_from($expr: IExpr) -> Result<Self> {
       $func
     }
   }
@@ -15,7 +15,7 @@ pub macro try_from_common($T: ty, |$expr: ident| $func: expr) {
     type Error = MglError;
 
     fn try_from(expr: Expression) -> Result<Self> {
-      <$T>::try_from(Ast::new(expr))
+      <$T>::try_from(IExpr::new(expr))
     }
   }
 }

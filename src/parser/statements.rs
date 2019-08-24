@@ -2,10 +2,10 @@ use crate::ast::*;
 use crate::parser::grammar::*;
 use crate::parser::expressions::*;
 
-pub fn parse_statement(pair: Pair) -> Ast<Statement> {
+pub fn parse_statement(pair: Pair) -> IStat {
   let pair_clone = pair.clone();
 
-  Ast::new(
+  IStat::new(
     match pair.as_rule() {
       Rule::return_statement => {
         Statement::return_op(parse_expression(pair))

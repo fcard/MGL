@@ -1,15 +1,14 @@
 use crate::ast::*;
-use crate::ast::wrapper::*;
 use crate::ast::precedence::*;
 use crate::parser::grammar::*;
 
-pub fn parse_expression(top_pair: Pair) -> Ast<Expression> {
+pub fn parse_expression(top_pair: Pair) -> IExpr {
   let mut expression = None;
 
   for pair in top_pair.clone().into_inner() {
     let pair_clone = pair.clone();
 
-    expression = Some(Ast::new(
+    expression = Some(IExpr::new(
       match pair.as_rule() {
         Rule::name    => Expression::name(pair.as_str()),
         Rule::string  => Expression::string(pair.as_str()),
