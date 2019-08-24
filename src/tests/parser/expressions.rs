@@ -3,7 +3,7 @@ use crate::tests::utility::*;
 
 macro assert_parse_expr {
   ($code: expr, $ast: expr) => {
-    assert_eq!(*expr($code).content, $ast)
+    assert_eq!(expr($code).content(), $ast)
   }
 }
 

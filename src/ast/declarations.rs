@@ -69,7 +69,7 @@ impl FunctionDeclaration {
 impl InstanceDeclaration {
   pub fn new(object_expression: IExpr, name: &str, keyvals: &[KeyValue]) -> Self {
     let object_name;
-    match *object_expression.content {
+    match object_expression.content() {
       Expression::Resource(name) => { object_name = name },
       Expression::Name(name)     => { object_name = ResourceName::Name(name) }
       _ => unreachable!()

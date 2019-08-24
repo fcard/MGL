@@ -13,13 +13,13 @@ implement_from_str! {
   argument = s;
 
   Expression => {
-    Ok(*parse_expression(parse_mgl(Rule::expression, s)?).content)
+    Ok(parse_expression(parse_mgl(Rule::expression, s)?).content())
   },
 
   Statement => {
     let pair = parse_mgl(Rule::statement_non_silent, s)?;
     let stat = pair.into_inner().next().unwrap();
-    Ok(*parse_statement(stat).content)
+    Ok(parse_statement(stat).content())
   },
 
   KeyValue => {

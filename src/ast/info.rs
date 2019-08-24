@@ -24,19 +24,27 @@ impl<T: Clone> AstDebugInfo<T> {
     }
   }
 
-  pub fn content(self, c: T) -> Self {
+  pub fn content(self) -> T {
+    *self.content
+  }
+
+  pub fn content_clone(&self) -> T {
+    *self.content.clone()
+  }
+
+  pub fn with_content(self, c: T) -> Self {
     let mut new = self.clone();
     new.content = box c;
     new
   }
 
-  pub fn file(self, c: &Ctx) -> Self {
+  pub fn with_file(self, c: &Ctx) -> Self {
     let mut new = self.clone();
     new.file = c.file.clone();
     new
   }
 
-  pub fn pos(self, pair: Pair) -> Self {
+  pub fn with_position(self, pair: Pair) -> Self {
     let mut new = self.clone();
     let span  = pair.as_span();
     let (sy, sx) = span.start_pos().line_col();

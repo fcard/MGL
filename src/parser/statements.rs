@@ -45,7 +45,7 @@ pub fn parse_statement(pair: Pair) -> IStat {
 
       _ => unreachable!()
     }
-  ).pos(pair_clone)
+  ).with_position(pair_clone)
 }
 
 

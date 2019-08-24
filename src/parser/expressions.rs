@@ -15,7 +15,7 @@ pub fn parse_expression(top_pair: Pair) -> IExpr {
         Rule::number  => Expression::num(pair.as_str()),
         Rule::boolean => Expression::boolean(pair.as_str().parse().unwrap()),
 
-        Rule::variable_name => *parse_expression(pair).content,
+        Rule::variable_name => parse_expression(pair).content(),
         Rule::parentheses   => Expression::parentheses(parse_expression(pair)),
 
         Rule::resource => {
@@ -59,7 +59,7 @@ pub fn parse_expression(top_pair: Pair) -> IExpr {
 
         _ => unreachable!()
       }
-    ).pos(pair_clone));
+    ).with_position(pair_clone));
   }
   expression.unwrap().fix_precedence()
 }
