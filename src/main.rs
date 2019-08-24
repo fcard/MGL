@@ -11,6 +11,7 @@ mod event;
 mod resources;
 mod command_line;
 mod compiler;
+mod source_files;
 
 #[cfg(test)]
 mod tests;

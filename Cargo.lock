@@ -124,6 +124,7 @@ name = "mgl"
 version = "0.1.5"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "mgl_resource_derive 0.1.0",
  "pest 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pest_derive 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",

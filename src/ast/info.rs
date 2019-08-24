@@ -1,6 +1,5 @@
-use crate::parser::grammar::Pair;
-use crate::parser::context::Ctx;
-use std::path::PathBuf;
+use crate::parser::tokens::Tokens;
+use crate::source_files::*;
 
 #[derive(Clone, Eq)]
 pub struct AstDebugInfo<T> {
@@ -9,7 +8,7 @@ pub struct AstDebugInfo<T> {
   pub line_end: usize,
   pub column_start: usize,
   pub column_end: usize,
-  pub file: PathBuf,
+  pub file: SourceFile,
 }
 
 impl<T: Clone> AstDebugInfo<T> {
@@ -20,7 +19,7 @@ impl<T: Clone> AstDebugInfo<T> {
       line_end: 0,
       column_start: 0,
       column_end: 0,
-      file: PathBuf::new()
+      file: SourceFile::None
     }
   }
 
@@ -38,18 +37,13 @@ impl<T: Clone> AstDebugInfo<T> {
     new
   }
 
-  pub fn with_file(self, c: &Ctx) -> Self {
+  pub fn with_info(self, tk: Tokens) -> Self {
     let mut new = self.clone();
-    new.file = c.file.clone();
-    new
-  }
-
-  pub fn with_position(self, pair: Pair) -> Self {
-    let mut new = self.clone();
-    let span  = pair.as_span();
+    let span  = tk.as_span();
     let (sy, sx) = span.start_pos().line_col();
     let (ey, ex) = span.end_pos().line_col();
 
+    new.file = tk.file();
     new.line_start   = sy;
     new.column_start = sx;
     new.line_end     = ey;

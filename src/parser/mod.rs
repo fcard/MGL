@@ -1,5 +1,6 @@
 //! Holds the functions that convert code to ASTs.
 
+pub mod tokens;
 pub mod context;
 pub mod grammar;
 pub mod expressions;
