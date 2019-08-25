@@ -4,4 +4,5 @@ mod parser;
 mod ast;
 mod compiler;
 mod resources;
+mod source_files;
 

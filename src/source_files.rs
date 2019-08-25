@@ -47,7 +47,7 @@ impl fmt::Debug for SourceFile {
       }
 
       SourceFile::File(index) => {
-        write!(f, "File({:?}={:?})", index, source_files!()[index])
+        write!(f, "File({:?})", source_files!()[index])
       }
     }
   }
