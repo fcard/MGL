@@ -7,7 +7,7 @@ pub use crate::error::{Result, MglError, InvalidFieldKind};
 // Traits to implement
 
 pub trait Resource<T: ResourceAst>: Sized {
-  fn parse_key_value(&mut self, source: &T, key: &Key, value: &Expression) -> Result<()>;
+  fn parse_key_value(&mut self, source: &T, key: &Key, value: &IExpr) -> Result<()>;
 }
 
 pub trait ResourceDefault<T: ResourceAst>: Sized {
@@ -16,19 +16,10 @@ pub trait ResourceDefault<T: ResourceAst>: Sized {
 
 // Helper functions
 
-pub trait FromExpression = TryFrom<Expression, Error=MglError>;
+pub trait FromExpression = TryFrom<IExpr, Error=MglError>;
 
-pub fn parse_field_default<T: FromExpression>(key: &Key, expr: &Expression) -> Result<T> {
-  let field = &key.name_of();
-  match T::try_from(expr.clone()) {
-    Ok(value) => Ok(value),
-
-    Err(MglError::ConvertExpression { value, into_type }) => {
-      MglError::wrong_field_type(value, &into_type, field)
-    }
-
-    error => error
-  }
+pub fn parse_field_default<T: FromExpression>(expr: &IExpr) -> Result<T> {
+  T::try_from(expr.clone())
 }
 
 
@@ -85,7 +76,7 @@ impl KeyInspector {
 
   pub fn get_array_index(field: &str, key: &Key) -> Result<usize> {
     match key.leftmost_index_of() {
-      Some(a) => Ok(parse_field_default(key, &a)?),
+      Some(a) => Ok(parse_field_default(&a)?),
       _ => MglError::invalid_field(field, InvalidFieldKind::NotArray(key.clone()))
     }
   }

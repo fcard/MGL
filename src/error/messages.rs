@@ -1,14 +1,24 @@
+use std::fs;
+use crate::ast::*;
 use crate::error::enums::*;
 use crate::parser::grammar::*;
 use titlecase::titlecase;
 
 pub trait ErrorMessageProvider {
+
+  // Required implementations
+
   const PARSER_ERROR: &'static str;
   const PARSER_EXPECTED_GRAMMAR_RULES: &'static str;
 
+  const TYPE_ERROR: &'static str;
+  const UNKNOWN_FILE: &'static str;
+
   fn parser_small_error_message(kind: ParserErrorKind) -> &'static str;
-  fn field_type_error(e: MglError) -> String;
-  fn field_value_error(e: MglError) -> String;
+  fn type_small_error_message(ty: String) -> String;
+
+
+  // Provided methods
 
   fn eprintln(e: MglError) {
     eprintln!("{}", Self::error_message(e));
@@ -16,7 +26,8 @@ pub trait ErrorMessageProvider {
 
   fn error_message(e: MglError) -> String {
     match &e {
-      MglError::Parser {..} => Self::parser_error_message(e),
+      MglError::Parser {..}            => Self::parser_error_message(e),
+      MglError::ConvertExpression {..} => Self::type_error_message(e),
       _ => unimplemented!()
     }
   }
@@ -67,6 +78,53 @@ pub trait ErrorMessageProvider {
         parser_error = Self::PARSER_ERROR,
         expected_grammar = Self::PARSER_EXPECTED_GRAMMAR_RULES,
       )
+    } else {
+      unreachable!()
+    }
+  }
+
+  fn show_ast_location<T>(ast: &AstDebugInfo<T>) -> Option<String> {
+    let &AstDebugInfo { file, column_start, column_end, line_start, line_end, .. } = ast;
+    file.as_path().map(|path| {
+      let mut result = String::new();
+      let string = fs::read_to_string(&path).unwrap_or(String::from(Self::UNKNOWN_FILE));
+      let lines  = string.lines()
+                         .enumerate()
+                         .take(line_end)
+                         .skip(line_start-1);
+
+      result.push_str(&format!("      [{}]\n", path.to_str().unwrap_or(Self::UNKNOWN_FILE)));
+
+      for (line, text) in lines {
+        result.push_str("      |\n");
+        result.push_str(&format!(" {:>4} | ", line+1));
+        result.push_str(&text);
+        result.push('\n');
+        result.push_str("      | ");
+
+        let start = if line + 1 == line_start { column_start - 1 } else { 0 };
+        let end   = if line + 1 == line_end   { column_end   - 1 } else { text.len() };
+
+        result.push_str(&format!("{spaces}{hats}\n",
+                                 spaces=" ".repeat(start),
+                                 hats="^".repeat(end - start)));
+      }
+      result
+    })
+  }
+
+
+  fn type_error_message(e: MglError) -> String {
+    if let MglError::ConvertExpression  { value, into_type } = e {
+      let mut result = String::new();
+      result.push_str(&format!("{}:\n", Self::TYPE_ERROR));
+      result.push_str(&Self::show_ast_location(&value)
+                      .unwrap_or(String::from(Self::UNKNOWN_FILE)));
+
+      result.push_str(&Self::type_small_error_message(into_type));
+      result.push('\n');
+      result
+
     } else {
       unreachable!()
     }

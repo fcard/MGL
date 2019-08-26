@@ -24,7 +24,7 @@ impl Object {
     for KeyValue { key, value } in declaration.key_values() {
       match Event::try_from(key.clone()) {
         Ok(event) => {
-          object.events.push((event, parse_event_value(key, value)?));
+          object.events.push((event, parse_event_value(value)?));
         }
 
         Err(EventErrorKind::InvalidName) => {
@@ -41,7 +41,7 @@ impl Object {
   }
 }
 
-fn parse_event_value(key: &Key, expr: &IExpr) -> Result<ResourceName> {
+fn parse_event_value(expr: &IExpr) -> Result<ResourceName> {
   match expr.as_ref() {
     &Expression::Name(ref name) => {
       Ok(ResourceName::new(&["script", &*name]))
@@ -55,7 +55,7 @@ fn parse_event_value(key: &Key, expr: &IExpr) -> Result<ResourceName> {
       }
     }
     _ => {
-      MglError::wrong_field_type(expr.clone(), &key.name_of(), "script name")
+      MglError::convert_expression(expr.clone(), "ResourceName")
     }
   }
 }

@@ -119,7 +119,7 @@ fn impl_parse_key_values(fields: &FieldsNamed) -> TokenStream {
 
     } else {
       field_set = quote! {
-        self.#full_field = #module::parse_field_default(#key, #value)?;
+        self.#full_field = #module::parse_field_default(#value)?;
       }
     }
 
@@ -148,7 +148,7 @@ fn impl_parse_key_values(fields: &FieldsNamed) -> TokenStream {
   // Assemble Method
 
   quote! {
-    fn parse_key_value(&mut self, #source_ast: &T, #key: &Key, #value: &Expression) -> #module::Result<()> {
+    fn parse_key_value(&mut self, #source_ast: &T, #key: &Key, #value: &IExpr) -> #module::Result<()> {
       match #key.name_of().as_ref() {
         #(#matches),*,
         field => {
