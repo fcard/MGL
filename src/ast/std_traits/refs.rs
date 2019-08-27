@@ -1,22 +1,6 @@
 use crate::ast::*;
 
 use std::convert::AsRef;
-use std::ops::Deref;
-use std::ops::DerefMut;
-
-impl<T> Deref for AstDebugInfo<T> {
-  type Target = T;
-
-  fn deref(&self) -> &Self::Target {
-    &self.content
-  }
-}
-
-impl<T> DerefMut for AstDebugInfo<T> {
-  fn deref_mut(&mut self) -> &mut Self::Target {
-    &mut self.content
-  }
-}
 
 impl<T> AsRef<T> for AstDebugInfo<T> {
   fn as_ref(&self) -> &T {
@@ -29,6 +13,15 @@ impl AsRef<Expression> for Expression {
     &self
   }
 }
+
+impl AsRef<Statement> for Statement {
+  fn as_ref(&self) -> &Statement {
+    &self
+  }
+}
+
+
+
 
 
 

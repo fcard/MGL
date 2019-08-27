@@ -17,24 +17,24 @@ pub fn build_script(s: Script) -> String {
   format!("{}", builder.result)
 }
 
-fn build_expression(e: &Expression) -> String {
+fn build_expression<T: AsRef<Expression>>(e: &T) -> String {
   use crate::ast::BinaryOp::Dot;
   use Expression::*;
   let ex = build_expression;
 
-  match &e {
+  match &e.as_ref() {
     &Str(string)         => format!("\"{}\"", string),
     &Num(number)         => number.clone(),
     &Bool(true)          => String::from("true"),
     &Bool(false)         => String::from("false"),
     &Name(name)          => name.clone(),
     &Resource(name)      => build_resource_name(&name),
-    &Parentheses(e)      => format!("({})", build_expression(&*e)),
-    &UnaryOp(op, e)      => format!("{}{}", op.as_str(), build_expression(&*e)),
-    &BinaryOp(Dot, a, b) => format!("{}.{}", ex(&*a), ex(&*b)),
-    &BinaryOp(op, a, b)  => format!("{} {} {}", ex(&*a), op.as_str(), ex(&*b)),
-    &Call(f, args)       => build_call(&*f, &args),
-    &Indexing(v, a, k)   => build_indexing(&*v, *a, &k),
+    &Parentheses(e)      => format!("({})", build_expression(&e)),
+    &UnaryOp(op, e)      => format!("{}{}", op.as_str(), build_expression(&e)),
+    &BinaryOp(Dot, a, b) => format!("{}.{}", ex(&a), ex(&b)),
+    &BinaryOp(op, a, b)  => format!("{} {} {}", ex(&a), op.as_str(), ex(&b)),
+    &Call(f, ref args)   => build_call(&f, args),
+    &Indexing(v, a, k)   => build_indexing(&v, *a, &k),
     &TernaryOp(_,_,_)    => unreachable!()
   }
 }
@@ -53,7 +53,10 @@ fn join_arguments<T: AsRef<Expression>>(v: &Vec<T>) -> String {
   v.iter().map(|e| build_expression(e.as_ref())).collect::<Vec<_>>().join(", ")
 }
 
-fn build_call<T: AsRef<Expression>>(caller: &Expression, args: &Vec<T>) -> String {
+fn build_call<T,U>(caller: &T, args: &Vec<U>) -> String
+  where T: AsRef<Expression>,
+        U: AsRef<Expression> {
+
   let mut result = build_expression(caller);
 
   result.push('(');
@@ -63,7 +66,10 @@ fn build_call<T: AsRef<Expression>>(caller: &Expression, args: &Vec<T>) -> Strin
   result
 }
 
-fn build_indexing<T: AsRef<Expression>>(v: &Expression, op: Accessor, keys: &Vec<T>) -> String {
+fn build_indexing<T,U>(v: &T, op: Accessor, keys: &Vec<U>) -> String
+  where T: AsRef<Expression>,
+        U: AsRef<Expression> {
+
   let mut result = build_expression(v);
 
   result.push('[');
@@ -109,8 +115,8 @@ impl StatementBuilder {
     }
   }
 
-  fn build_statement(&mut self, statement: &Statement) {
-    match &statement {
+  fn build_statement<T: AsRef<Statement>>(&mut self, statement: T) {
+    match &statement.as_ref() {
       &Statement::Return(expr) => {
         self.add(&format!("return {};\n", build_expression(&expr)));
       }
@@ -129,13 +135,13 @@ impl StatementBuilder {
       }
 
       &Statement::With(with, body) => {
-        self.add(&format!("with {} {{\n", build_expression(with)));
+        self.add(&format!("with {} {{\n", build_expression(&with)));
         self.build_statement(body);
         self.add("}\n");
       }
 
       &Statement::If(cond, then, or_else) => {
-        self.add(&format!("if {} {{\n", build_expression(cond)));
+        self.add(&format!("if {} {{\n", build_expression(&cond)));
         self.build_statement(then);
 
         if let Some(or_else) = or_else {
@@ -146,7 +152,7 @@ impl StatementBuilder {
       }
 
       &Statement::While(cond, body) => {
-        self.add(&format!("while {} {{\n", build_expression(cond)));
+        self.add(&format!("while {} {{\n", build_expression(&cond)));
         self.build_statement(body);
         self.add("}\n");
       }

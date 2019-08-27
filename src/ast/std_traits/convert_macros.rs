@@ -38,7 +38,7 @@ pub macro implement_try_from_for_numbers($($T: ty),+) {
     try_from_common!($T, |expr| {
       let value_type = format!("number ({})", stringify!($T));
 
-      match &*expr {
+      match expr.as_ref() {
         &Expression::Num(ref n) => {
           match n.parse() {
             Ok(n)  => Ok(n),
