@@ -18,3 +18,8 @@ impl Display for ResourceName {
   }
 }
 
+impl<T: Debug> Debug for AstDebugInfo<T> {
+  fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+    write!(f, "{:?}", self.content)
+  }
+}

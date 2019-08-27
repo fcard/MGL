@@ -13,19 +13,13 @@ pub enum MglError {
     rules: Vec<Rule>,
   },
 
-  WrongFieldType {
-    value: Expression,
-    field_name: String,
-    value_type: String,
-  },
-
   InvalidField {
     kind: InvalidFieldKind,
     field: String
   },
 
   ConvertExpression {
-    value: Expression,
+    value: IExpr,
     into_type: String,
   },
 
@@ -88,17 +82,7 @@ impl MglError {
     )
   }
 
-  pub fn wrong_field_type<T>(value: Expression, field_name: &str, value_type: &str) -> Result<T> {
-    Err(
-      MglError::WrongFieldType {
-        value,
-        field_name: String::from(field_name),
-        value_type: String::from(value_type),
-      }
-    )
-  }
-
-  pub fn convert_expression<T>(value: Expression, into_type: &str) -> Result<T> {
+  pub fn convert_expression<T>(value: IExpr, into_type: &str) -> Result<T> {
     Err(
       MglError::ConvertExpression {
         value,

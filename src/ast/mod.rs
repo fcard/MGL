@@ -1,6 +1,7 @@
 //! Holds the Abstract Syntax Tree types, as well as
 //! convenience functions and trait implementations,
 
+pub mod info;
 pub mod expressions;
 pub mod operators;
 pub mod statements;
@@ -8,6 +9,7 @@ pub mod declarations;
 pub mod precedence;
 pub mod std_traits;
 
+pub use info::*;
 pub use expressions::*;
 pub use operators::*;
 pub use statements::*;

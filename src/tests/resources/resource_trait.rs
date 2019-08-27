@@ -77,7 +77,7 @@ fn test_resources_trait_fail() {
   assert_eq!(err2, MglError::invalid_field("normal_field_1", NotSimple(key("normal_field_1[0]"))));
   assert_eq!(err3, MglError::invalid_field("array_field",    NotArray(key("array_field"))));
   assert_eq!(err4, MglError::invalid_field("sub_resource",   NotSubResource(key("sub_resource"))));
-  assert_eq!(err5, MglError::wrong_field_type(expr("\"a\""), "number (i64)", "normal_field_1"));
+  assert_eq!(err5, MglError::convert_expression(expr("\"a\""), "number (i64)"));
 }
 
 

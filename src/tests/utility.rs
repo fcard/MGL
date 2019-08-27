@@ -25,8 +25,8 @@ macro parse_unwrap_aliases($($func: ident -> $T: ty;)*) {
 }
 
 parse_unwrap_aliases! {
-  expr        -> Expression;
-  statement   -> Statement;
+  expr        -> IExpr;
+  statement   -> IStat;
   declaration -> Declaration;
   key         -> Key;
   function    -> FunctionDeclaration;

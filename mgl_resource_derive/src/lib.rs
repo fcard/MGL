@@ -95,7 +95,7 @@ fn impl_parse_key_values(fields: &FieldsNamed) -> TokenStream {
 
     if field_array {
       array_pre_code = quote! {
-        let #array_index = #module::KeyInspector::get_array_index(#field_str, #key.clone())?;
+        let #array_index = #module::KeyInspector::get_array_index(#field_str, #key)?;
         if #array_index >= self.#field_name.len() {
           self.#field_name.resize_with(#array_index + 1, Default::default);
         }
@@ -114,12 +114,12 @@ fn impl_parse_key_values(fields: &FieldsNamed) -> TokenStream {
     if field_sub {
       field_set = quote! {
         let #sub_field_key = #module::KeyInspector::get_sub_field_key(#field_str, #key)?;
-        self.#full_field.parse_key_value(#source_ast, #sub_field_key, #value)?;
+        self.#full_field.parse_key_value(#source_ast, &#sub_field_key, #value)?;
       }
 
     } else {
       field_set = quote! {
-        self.#full_field = #module::parse_field_default(#key, #value)?;
+        self.#full_field = #module::parse_field_default(#value)?;
       }
     }
 
@@ -130,7 +130,7 @@ fn impl_parse_key_values(fields: &FieldsNamed) -> TokenStream {
 
     } else {
       no_field_assert = quote! {
-        #module::KeyInspector::assert_field_has_no_index(#field_str, #key.clone())?;
+        #module::KeyInspector::assert_field_has_no_index(#field_str, #key)?;
       };
     }
 
@@ -148,7 +148,7 @@ fn impl_parse_key_values(fields: &FieldsNamed) -> TokenStream {
   // Assemble Method
 
   quote! {
-    fn parse_key_value(&mut self, #source_ast: &T, #key: Key, #value: Expression) -> #module::Result<()> {
+    fn parse_key_value(&mut self, #source_ast: &T, #key: &Key, #value: &IExpr) -> #module::Result<()> {
       match #key.name_of().as_ref() {
         #(#matches),*,
         field => {

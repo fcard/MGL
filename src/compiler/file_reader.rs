@@ -6,6 +6,8 @@ use crate::utility::files::{valid_paths, path_string, path_file_name};
 use crate::ast::Top;
 use crate::error::*;
 use crate::parser::parse_code;
+use crate::parser::context::*;
+use crate::source_files::*;
 
 #[derive(Debug, Clone)]
 pub enum AstFileTree {
@@ -16,7 +18,10 @@ pub enum AstFileTree {
 
 pub fn read_file_as_ast(path: &PathBuf) -> Result<Top> {
   match read_to_string(path) {
-    Ok(mgl) => parse_code(&*mgl),
+    Ok(mgl) => {
+      let source = SourceFile::new(path.clone());
+      parse_code(ParserContext::new(&*mgl).with_file(source))
+    }
 
     Err(e) => {
       eprintln!("An error has occured while trying to read '{}': {}\n", path_string(&path), e);
@@ -30,19 +35,21 @@ fn is_mgl_file(file: &PathBuf) -> bool {
 }
 
 impl AstFileTree {
-  pub fn from_project(project_file: Option<PathBuf>) -> TopResult<AstFileTree> {
-    Ok(
-      AstFileTree::Root(box
-        if let Some(project) = project_file {
-          let mut source_directory = project.parent().unwrap().to_path_buf();
-          source_directory.push("src");
-          AstFileTree::from_directory(&source_directory)?
-
-        } else {
-          AstFileTree::Node(String::new(), Vec::new())
-        },
-      )
+  pub fn new_root() ->  Self {
+    AstFileTree::Root(
+      box AstFileTree::Node(String::new(), Vec::new())
     )
+  }
+
+  pub fn from_project(project_file: Option<PathBuf>) -> TopResult<AstFileTree> {
+    if let Some(project) = project_file {
+      let mut source_directory = project.parent().unwrap().to_path_buf();
+      source_directory.push("src");
+      Ok(AstFileTree::Root(box AstFileTree::from_directory(&source_directory)?))
+
+    } else {
+      Ok(AstFileTree::new_root())
+    }
   }
 
 

@@ -1,5 +1,5 @@
-use crate::ast::expressions::{Expression, ResourceName};
-use crate::ast::statements::Statement;
+use crate::ast::expressions::{Expression, IExpr, ResourceName};
+use crate::ast::statements::IStat;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Declaration {
@@ -12,7 +12,7 @@ pub enum Declaration {
 pub struct FunctionDeclaration {
   pub name: String,
   pub args: Vec<String>,
-  pub body: Box<Statement>
+  pub body: IStat
 }
 
 
@@ -43,33 +43,33 @@ pub enum ResourceKind {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct KeyValue {
-  pub key: Key,
-  pub value: Expression
+  pub key:   Key,
+  pub value: IExpr
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Key {
   Name(String),
-  Indexing(String, Expression),
+  Indexing(String, IExpr),
   Dot(Box<Key>, Box<Key>)
 }
 
 // Implementations
 
 impl FunctionDeclaration {
-  pub fn new(name: &str, args: &[&str], body: Statement) -> Self {
+  pub fn new(name: &str, args: &[&str], body: IStat) -> Self {
     FunctionDeclaration {
       name: String::from(name),
       args: args.iter().map(|x| String::from(*x)).collect(),
-      body: box body
+      body: body
     }
   }
 }
 
 impl InstanceDeclaration {
-  pub fn new(object_expression: Expression, name: &str, keyvals: &[KeyValue]) -> Self {
+  pub fn new(object_expression: IExpr, name: &str, keyvals: &[KeyValue]) -> Self {
     let object_name;
-    match object_expression {
+    match object_expression.content() {
       Expression::Resource(name) => { object_name = name },
       Expression::Name(name)     => { object_name = ResourceName::Name(name) }
       _ => unreachable!()
@@ -122,7 +122,7 @@ impl Key {
     Key::Name(String::from(name))
   }
 
-  pub fn indexing(left: &str, arg: Expression) -> Key {
+  pub fn indexing(left: &str, arg: IExpr) -> Key {
     Key::Indexing(String::from(left), arg)
   }
 
@@ -151,14 +151,14 @@ impl Key {
     }
   }
 
-  pub fn index_of(&self) -> Option<Expression> {
+  pub fn index_of<'a>(&'a self) -> Option<&'a IExpr> {
     match &self {
-      Key::Indexing(_, index) => Some(index.clone()),
+      Key::Indexing(_, index) => Some(&index),
       _ => None
     }
   }
 
-  pub fn leftmost_index_of(&self) -> Option<Expression> {
+  pub fn leftmost_index_of<'a>(&'a self) -> Option<&'a IExpr> {
     if let Some(left) = self.left_of() {
       left.leftmost_index_of()
 
@@ -167,16 +167,16 @@ impl Key {
     }
   }
 
-  pub fn left_of(&self) -> Option<Key> {
+  pub fn left_of<'a>(&'a self) -> Option<&'a Key> {
     match &self {
-      Key::Dot(box left, _) => Some(left.clone()),
+      Key::Dot(box left, _) => Some(left),
       _ => None
     }
   }
 }
 
 impl KeyValue {
-  pub fn new(key: Key, value: Expression) -> KeyValue {
+  pub fn new(key: Key, value: IExpr) -> KeyValue {
     KeyValue {
       key,
       value

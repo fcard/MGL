@@ -3,74 +3,77 @@
 
 use crate::ast::*;
 
-
 pub trait FixPrecedence {
-  fn fix_precedence(&self) -> Self;
+  fn fix_precedence(self) -> Self;
 }
 
-impl FixPrecedence for Expression {
-  fn fix_precedence(&self) -> Self {
+impl FixPrecedence for IExpr {
+  fn fix_precedence(self) -> Self {
     use Expression::*;
 
-    match &self {
-      &UnaryOp(op, box e) => {
-        fix_unary_precedence(*op, e.clone())
+    match self.content_clone() {
+      UnaryOp(op, e) => {
+        fix_unary_precedence(self, op, e)
       }
 
-      &BinaryOp(op, box left, box right) => {
-        fix_binary_precedence(*op, left.clone(), right.clone())
+      BinaryOp(op, left, right) => {
+        fix_binary_precedence(self, op, left.clone(), right.clone())
       }
 
-      _ => unreachable!()
+      _ => self
     }
   }
 }
 
 
-pub fn fix_unary_precedence(op: UnaryOp, e: Expression) -> Expression {
+pub fn fix_unary_precedence(ast: IExpr, op: UnaryOp, e: IExpr) -> IExpr {
   use Expression::*;
 
-  match e.clone() {
-    BinaryOp(right_op, box left, box right) => {
-      if right_op.priority() <= op.priority() {
-        Expression::unary_op(op, e)
+  match e.content_clone() {
+    BinaryOp(bin_op, left, right) => {
+      if bin_op.priority() <= op.priority() {
+        ast.with_content(Expression::unary_op(op, e))
 
       } else {
-        Expression::binary_op(right_op, Expression::unary_op(op, left), right)
+        let new_left = ast.with_content(Expression::unary_op(op, left));
+        e.with_content(Expression::binary_op(bin_op, new_left, right))
       }
     }
 
-    TernaryOp(box condition, box left, box right) => {
-      Expression::ternary_op(Expression::unary_op(op, condition), left, right)
+    TernaryOp(condition, left, right) => {
+      let new_cond = ast.with_content(Expression::unary_op(op, condition));
+      e.with_content(Expression::ternary_op(new_cond, left, right))
     }
 
-    _ => Expression::unary_op(op, e)
+    _ => {
+      ast.with_content(Expression::unary_op(op, e))
+    }
   }
 }
 
 
-pub fn fix_binary_precedence(op: BinaryOp, left: Expression, right: Expression) -> Expression {
+pub fn fix_binary_precedence(ast: IExpr, op: BinaryOp, left: IExpr, right: IExpr) -> IExpr {
   use Expression::*;
 
-  match right.clone() {
-    BinaryOp(right_op, box right_left, box right_right) => {
+  match right.content_clone() {
+    BinaryOp(right_op, right_left, right_right) => {
       if right_op.priority() < op.priority() {
-        Expression::binary_op(op, left, right)
+        ast.with_content(Expression::binary_op(op, left, right))
 
       } else {
-        Expression::binary_op(
-          right_op, Expression::binary_op(op, left, right_left), right_right
-        )
+        let new_left = ast.with_content(Expression::binary_op(op, left, right_left));
+        right.with_content(Expression::binary_op(right_op, new_left, right_right))
       }
     }
 
-    TernaryOp(box condition, box right_left, box right_right) => {
-      Expression::ternary_op(
-        Expression::binary_op(op, left, condition), right_left, right_right
-      )
+    TernaryOp(condition, right_left, right_right) => {
+      let new_cond = ast.with_content(Expression::binary_op(op, left, condition));
+      right.with_content(Expression::ternary_op(new_cond, right_left, right_right))
     }
 
-    _ => Expression::binary_op(op, left, right)
+    _ => {
+      ast.with_content(Expression::binary_op(op, left, right))
+    }
   }
 }
 

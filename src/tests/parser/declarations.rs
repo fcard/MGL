@@ -61,15 +61,15 @@ fn test_declaration_key_methods() {
   assert_eq!(key("x.y").name_of(),  String::from("x"));
 
   assert_eq!(key("x").index_of(),    None);
-  assert_eq!(key("x[0]").index_of(), Some(expr("0")));
+  assert_eq!(key("x[0]").index_of(), Some(&expr("0")));
 
   assert_eq!(key("x").leftmost_index_of(),      None);
   assert_eq!(key("x.y").leftmost_index_of(),    None);
-  assert_eq!(key("x[0]").leftmost_index_of(),   Some(expr("0")));
-  assert_eq!(key("x[0].y").leftmost_index_of(), Some(expr("0")));
+  assert_eq!(key("x[0]").leftmost_index_of(),   Some(&expr("0")));
+  assert_eq!(key("x[0].y").leftmost_index_of(), Some(&expr("0")));
 
   assert_eq!(key("x").left_of(),   None);
-  assert_eq!(key("x.y").left_of(), Some(key("x")));
+  assert_eq!(key("x.y").left_of(), Some(&key("x")));
 }
 
 #[test]
