@@ -73,7 +73,7 @@ impl Expression {
 }
 
 impl ResourceName {
-  pub fn new(names: &[&str]) -> ResourceName {
+  pub fn new(names: &[&str]) -> Self {
     let mut resource = None;
 
     for name in names.iter().rev() {
@@ -83,6 +83,15 @@ impl ResourceName {
       });
     }
     resource.unwrap()
+  }
+
+  pub fn with_top_module(&self, name: &str) -> Self {
+    if self.top_module_is(name) {
+      self.clone()
+
+    } else {
+      ResourceName::InModule(String::from(name), box self.clone())
+    }
   }
 
   pub fn top_module_is(&self, name: &str) -> bool {

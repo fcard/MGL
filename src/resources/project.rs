@@ -9,6 +9,7 @@ use crate::resources::script::Script;
 use crate::resources::object::Object;
 use crate::resources::sound::Sound;
 use crate::resources::room::{Room, InstanceItem, InstanceItems};
+use crate::resources::resolve::*;
 use crate::resources::resource_trait::*;
 
 pub type Items<T> = Vec<Item<T>>;
@@ -30,7 +31,7 @@ pub struct Project {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Item<F> {
   File(ResourceName, F),
-  Group(String, Vec<Item<F>>)
+  Group(String, Items<F>)
 }
 
 
@@ -102,7 +103,7 @@ impl Project {
           project.objects = objects;
           project.sounds  = sounds;
           project.fonts   = fonts;
-          project.rooms   = rooms;
+          project.rooms   = resolve_room_items(&project.instances, rooms)?;
 
         } else {
           if !sprites.is_empty() { project.sprites.push(Item::Group(directory.clone(), sprites)); }
@@ -153,10 +154,10 @@ impl Project {
     for instance_ast in &resource.instances {
       let instance      = Instance::new(instance_ast.clone())?;
       let instance_name = full_name_for("instance", &instance_ast.name, &sub_module);
-      self.instances.insert(instance_name, instance.clone());
+      self.instances.insert(instance_name.clone(), instance.clone());
 
       if resource.kind == ResourceKind::Room {
-        instances.push(InstanceItem::Resolved(instance));
+        instances.push(InstanceItem::Resolved(instance_name, instance));
       }
     }
 

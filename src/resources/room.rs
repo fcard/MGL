@@ -10,7 +10,11 @@ pub struct Room {
   pub width: u64,
   pub height: u64,
   pub speed: u64,
+  pub isometric: bool,
+  pub horizontal_snap: usize,
+  pub vertical_snap: usize,
   pub persistent: bool,
+  pub show_color: bool,
   pub enable_views: bool,
   pub clear_view_background: bool,
   pub clear_display_buffer: bool,
@@ -23,7 +27,7 @@ pub struct Room {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum InstanceItem {
-  Resolved(Instance),
+  Resolved(ResourceName, Instance),
   Unresolved(ResourceName),
 }
 
@@ -34,7 +38,11 @@ impl ResourceDefault<(ResourceDeclaration, InstanceItems)> for Room {
         width: 1024,
         height: 768,
         speed: 30,
+        isometric: false,
+        horizontal_snap: 16,
+        vertical_snap: 16,
         persistent: false,
+        show_color: true,
         enable_views: false,
         clear_view_background: false,
         clear_display_buffer: false,

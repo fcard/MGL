@@ -7,7 +7,12 @@ use std::convert::TryFrom;
 #[derive(Debug, Clone, PartialEq, Resource)]
 pub struct Object {
   pub sprite: Option<ResourceName>,
+  pub depth: i64,
+  pub solid: bool,
+  pub visible: bool,
   pub persistent: bool,
+  pub parent: Option<ResourceName>,
+  pub mask: Option<ResourceName>,
 
   #[ignore_field]
   pub events: Vec<(Event, ResourceName)>,
@@ -17,7 +22,12 @@ impl Object {
   pub fn new(declaration: ResourceDeclaration) -> Result<Object> {
     let mut object = Object {
       sprite: None,
+      depth: 0,
+      solid: false,
+      visible: true,
       persistent: false,
+      parent: None,
+      mask: None,
       events: Vec::new()
     };
 
