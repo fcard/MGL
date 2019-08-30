@@ -87,7 +87,9 @@ fn test_resources_project() {
   let snd  = Sound::new(resource(snd1));
   let ins  = Instance::new(instance(ins1));
   let rins = Instance::new(instance(rins1));
-  let room = Room::new((resource(&room1), vec![InstanceItem::Resolved(rins.unwrap())]));
+  let room = Room::new((resource(&room1),
+    vec![InstanceItem::Resolved(rn!(instance::r::ri), rins.clone().unwrap())]
+  ));
 
   assert_eq!(project.objects[0], item(rn!(object::o),    obj));
   assert_eq!(project.objects[1], item(rn!(wrapper::w),   wrap));
@@ -96,7 +98,8 @@ fn test_resources_project() {
   assert_eq!(project.sprites[0], item(rn!(sprite::s),    spr));
   assert_eq!(project.sounds[0],  item(rn!(sound::s),     snd));
   assert_eq!(project.rooms[0],   item(rn!(room::r),      room));
-  assert_eq!(project.instances[&rn!(instance::i)], ins.unwrap());
+  assert_eq!(project.instances[&rn!(instance::i)],       ins.unwrap());
+  assert_eq!(project.instances[&rn!(instance::r::ri)],   rins.unwrap());
 }
 
 

@@ -9,12 +9,22 @@ fn test_resources_object_fields() {
   let o = Object::new(resource(r#"
     object o {
       sprite: s
+      depth: 1
+      solid: true
+      visible: false
+      mask: s
+      parent: p
       persistent: true
     }
   "#)).unwrap();
 
   assert_eq!(o.sprite, Some(ResourceName::new(&["s"])));
   assert_eq!(o.persistent, true);
+  assert_eq!(o.depth, 1);
+  assert_eq!(o.solid, true);
+  assert_eq!(o.visible, false);
+  assert_eq!(o.mask, Some(ResourceName::new(&["s"])));
+  assert_eq!(o.parent, Some(ResourceName::new(&["p"])));
 
   let e1 = Object::new(resource("object e { k: 1\n }"));
   let e2 = Object::new(resource("object e { events: 1\n }"));

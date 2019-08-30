@@ -103,7 +103,8 @@ fn test_instance_sound() {
       id: 10000
       x: 20
       y: 20
-      scale: 0.5
+      scale_x: 0.5
+      scale_y: 0.5
       rotation: 180.0
       alpha: 0.5
       color: 1
@@ -114,7 +115,8 @@ fn test_instance_sound() {
   assert_eq!(i.id, 10000);
   assert_eq!(i.x, 20);
   assert_eq!(i.y, 20);
-  assert_eq!(i.scale, 0.5);
+  assert_eq!(i.scale_x, 0.5);
+  assert_eq!(i.scale_y, 0.5);
   assert_eq!(i.rotation, 180.0);
   assert_eq!(i.alpha, 0.5);
   assert_eq!(i.color, 1);
