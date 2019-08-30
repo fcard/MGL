@@ -18,7 +18,7 @@ pub enum Event {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum StepKind {
-  Normal,
+  Normal = 0,
   Begin,
   End
 }

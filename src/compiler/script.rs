@@ -1,6 +1,8 @@
 use crate::ast::*;
 use crate::resources::script::*;
 
+pub const UNDEFINED: &'static str = "<undefined>";
+
 struct StatementBuilder {
   root: bool,
   result: String,
@@ -39,7 +41,7 @@ fn build_expression<T: AsRef<Expression>>(e: &T) -> String {
   }
 }
 
-fn build_resource_name(name: &ResourceName) -> String {
+pub fn build_resource_name(name: &ResourceName) -> String {
   match &name {
     &ResourceName::Name(name) => name.clone(),
     &ResourceName::InModule(m, n) => {

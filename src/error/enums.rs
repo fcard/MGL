@@ -1,3 +1,4 @@
+use crate::error::xml::XmlError;
 use crate::error::Result;
 use crate::ast::*;
 use crate::parser::grammar::*;
@@ -32,7 +33,11 @@ pub enum MglError {
 
   Event {
     kind: EventErrorKind,
-  }
+  },
+
+  InstanceNotFound(ResourceName),
+
+  Xml(XmlError)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
