@@ -7,7 +7,7 @@ use crate::resources::project::*;
 use crate::resources::room::*;
 use crate::resources::instance::*;
 
-type InstanceMap = HashMap<ResourceName, Instance>;
+pub type InstanceMap = HashMap<ResourceName, Instance>;
 
 pub fn resolve_room_item(instances: &InstanceMap, item: Item<Room>) -> TopResult<Item<Room>> {
   match item {
